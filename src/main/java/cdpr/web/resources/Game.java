@@ -1,5 +1,7 @@
 package cdpr.web.resources;
 
+import java.util.Objects;
+
 
 /**
  *
@@ -16,6 +18,14 @@ public class Game {
 
     }
 
+    
+    public Game(String name, String developer, Genre genre, double price) {
+        this.name = name;
+        this.developer = developer;
+        this.genre = genre;
+        this.price = price;
+        this.quantity = 0;
+    }
     public Game(String name, String developer, Genre genre, double price,
             int quantity) {
         this.name = name;
@@ -68,6 +78,33 @@ public class Game {
     @Override
     public String toString() {
         return "Game{" + "name=" + name + ", developer=" + developer + ", genre=" + genre + ", price=" + price + ", quantity=" + quantity + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Game other = (Game) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.developer, other.developer)) {
+            return false;
+        }
+        return this.genre == other.genre;
     }
 
 }
