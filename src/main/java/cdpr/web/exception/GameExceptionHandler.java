@@ -16,18 +16,11 @@ public class GameExceptionHandler {
     public ResponseEntity<Object> hangleGameNotFoundExpection(GameNotFoundException gameNotFoundException) {
 
         GameException gameException = new GameException(
+                HttpStatus.NOT_FOUND,
                 gameNotFoundException.getMessage(),
-                gameNotFoundException.getCause(),
-                HttpStatus.NOT_FOUND);
+                gameNotFoundException.getCause());
 
         return new ResponseEntity<>(gameException, HttpStatus.NOT_FOUND);
-    }
-    public ResponseEntity<Object> handleIncorrectGameFormatException(IncorrectGameFormatException incorrectGameFormatException) {
-        GameException gameException = new GameException(
-                incorrectGameFormatException.getMessage(),
-                incorrectGameFormatException.getCause(),
-                HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        return new ResponseEntity<>(gameException, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
 }
