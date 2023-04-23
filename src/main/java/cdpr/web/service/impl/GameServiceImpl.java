@@ -6,6 +6,8 @@ import cdpr.web.service.GameService;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Queue;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +21,9 @@ public class GameServiceImpl implements GameService {
     GameRepository repository;
     private static Integer idCounter = 0;
     private final Queue<Integer> deletedNumbers = new LinkedList<>();
-   
+    private final static String ID_NOT_EXIST
+            = "Game with such ID does not exist in Repository";
+
     public GameServiceImpl(GameRepository repository) {
         this.repository = repository;
     }
@@ -27,7 +31,7 @@ public class GameServiceImpl implements GameService {
     //CREATE
     @Override
     public String createGame(Game game) {
-        if(game.getName() == null || game.getDeveloper() == null 
+        if (game.getName() == null || game.getDeveloper() == null
                 || game.getGenre() == null || game.getPrice() == 0.0) {
             return "Bad format of game";
         }
@@ -37,10 +41,10 @@ public class GameServiceImpl implements GameService {
                 return "Game already exist in Repository";
             }
         }
-        
-         if(deletedNumbers.isEmpty()){
+
+        if (deletedNumbers.isEmpty()) {
             game.setId(idCounter++);
-        }else {
+        } else {
             game.setId(deletedNumbers.poll());
         }
         repository.save(game);
@@ -50,9 +54,11 @@ public class GameServiceImpl implements GameService {
     //GET
     @Override
     public Game getGame(Integer id) {
-        Game game = repository.findById(id).get();
-        return game;
-        //TODO Problem
+        if (repository.existsById(id)) {
+            Game game = repository.findById(id).get();
+            return game;
+        } 
+        return null;
     }
 
     @Override
@@ -95,54 +101,64 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public String isAvailable(Integer id) {
-
-        Game game = repository.findById(id).get();
-        if (game != null) {
+        if (repository.existsById(id)) {
+            Game game = repository.findById(id).get();
             if (game.getQuantity() > 0) {
                 return "Game avaliable";
             }
             return "Game not avaliable";
         }
-        return "Game with this id does not exist";
+        return ID_NOT_EXIST;
+
     }
 
     //UPDATE
     @Override
     public String buyOneGame(Integer id) {
-        Game game = repository.findById(id).get();
-        if (game != null) {
+        if (repository.existsById(id)) {
+            Game game = repository.findById(id).get();
             if (game.getQuantity() > 0) {
+                System.out.println(game.getQuantity());
                 game.decreaseQuantity();
+                System.out.println(game.getQuantity());
+                repository.save(game);
+
                 return game.getName() + " was bought for " + game.getPrice();
             }
             return "Not enought copies in stock";
-
         }
-        return "Game with this id does not exist";
+        return ID_NOT_EXIST;
     }
 
     @Override
     public String restockGame(Integer id, int quantity) {
-        
-        Game game = repository.findById(id).get();
-        if (game != null) {
-            if(quantity < 1){
-            return "Quantity must be greater than 0 to restock";
+        if (repository.existsById(id)) {
+            Game game = repository.findById(id).get();
+            if (quantity < 1) {
+                return "Quantity must be greater than 0 to restock";
             }
+            System.out.println(game.getQuantity());
             game.restockQuantity(quantity);
+            System.out.println(game.getQuantity());
+            repository.save(game);
             return "Update OK";
         }
-        return "Game wuth this id does not exist";
+        return ID_NOT_EXIST;
     }
 
     @Override
     public String putGameOnSale(Integer id, double factor) {
-        Game game = repository.findById(id).get();
-        if (game != null) {
+        if (factor == 0) {
+            return "Factor cannot be equal to 0";
+        }
+        if (repository.existsById(id)) {
+            Game game = repository.findById(id).get();
             game.setOnSale(factor);
+            repository.save(game);
             return "Update OK";
         }
-        return "Game wuth this id does not exist";
+        return ID_NOT_EXIST;
+
     }
 
     //DELETE
@@ -153,7 +169,7 @@ public class GameServiceImpl implements GameService {
             repository.deleteById(id);
             return "Delete OK";
         }
-        return "Game does not exist in Repository";
+        return ID_NOT_EXIST;
     }
 
     @Override

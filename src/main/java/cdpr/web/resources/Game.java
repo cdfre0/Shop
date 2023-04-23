@@ -23,7 +23,7 @@ public class Game {
 
     @Id
     private Integer id;
-    
+
     private String name;
     private String developer;
     private Genre genre;
@@ -50,13 +50,15 @@ public class Game {
         this.price = price;
         this.quantity = quantity;
     }
-    
+
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
@@ -102,7 +104,7 @@ public class Game {
     }
 
     public void decreaseQuantity() {
-        this.quantity = quantity -1;
+        this.quantity--;
     }
 
     public void restockQuantity(int quantity) {
