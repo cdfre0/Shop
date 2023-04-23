@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,14 +20,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class GameServiceImpl implements GameService {
 
-    GameRepository repository;
-    private static Integer idCounter = 0;
-    
-    private final Queue<Integer> deletedNumbers = new LinkedList<>();
     private final static String ID_NOT_EXIST
             = "Game with such ID does not exist in Repository";
     private final static String UPDATE_SUCCESS = "Update OK";
     private final static String DELETE_SUCCESS = "Delete OK";
+
+    private static Integer idCounter = 0;
+    private final Queue<Integer> deletedNumbers = new LinkedList<>();
+
+    GameRepository repository;
+    /**
+     * Lock for reading and writing data in database.
+     */
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public GameServiceImpl(GameRepository repository) {
         this.repository = repository;
@@ -34,114 +41,158 @@ public class GameServiceImpl implements GameService {
     //CREATE
     @Override
     public String createGame(Game game) {
+
         if (game.getName() == null || game.getDeveloper() == null
                 || game.getGenre() == null || game.getPrice() == 0.0) {
             throw new IncorrectGameFormatException(
                     "Format of game is incorrect");
         }
-
-        for (Game existingGame : repository.findAll()) {
-            if (existingGame.equals(game)) {
-                return "Game already exist in Repository";
+        lock.writeLock().lock();
+        try {
+            for (Game existingGame : repository.findAll()) {
+                if (existingGame.equals(game)) {
+                    return "Game already exist in Repository";
+                }
             }
-        }
 
-        if (deletedNumbers.isEmpty()) {
-            game.setId(idCounter++);
-        } else {
-            game.setId(deletedNumbers.poll());
+            if (deletedNumbers.isEmpty()) {
+                game.setId(idCounter++);
+            } else {
+                game.setId(deletedNumbers.poll());
+            }
+            repository.save(game);
+            return "Create OK";
+        } finally {
+            lock.writeLock().unlock();
         }
-        repository.save(game);
-        return "Create OK";
     }
 
     //GET
     @Override
     public Game getGame(Integer id) {
-        checkIdExisting(id);
-        Game game = repository.findById(id).get();
-        return game;
+        lock.readLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            return game;
+        } finally {
+            lock.readLock().unlock();
+        }
 
     }
 
     @Override
     public List<Game> getAllGames() {
-        return repository.findAll();
+        lock.readLock().lock();
+        try {
+            return repository.findAll();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public List<Game> getGameByDev(String developerName) {
         List<Game> games = new ArrayList<>();
-        for (Game game : repository.findAll()) {
-            if (game.getDeveloper().equals(developerName)) {
-                games.add(game);
+        lock.readLock().lock();
+        try {
+            for (Game game : repository.findAll()) {
+                if (game.getDeveloper().equals(developerName)) {
+                    games.add(game);
+                }
             }
+            return games;
+        } finally {
+            lock.readLock().unlock();
         }
-        return games;
     }
 
     @Override
     public List<Game> getGameByGenre(Game.Genre genre) {
         List<Game> games = new ArrayList<>();
-        for (Game game : repository.findAll()) {
-            if (game.getGenre().equals(genre)) {
-                games.add(game);
+        lock.readLock().lock();
+        try {
+            for (Game game : repository.findAll()) {
+                if (game.getGenre().equals(genre)) {
+                    games.add(game);
+                }
             }
+            return games;
+        } finally {
+            lock.readLock().unlock();
         }
-        return games;
     }
 
     @Override
     public List<Game> showStockLessThan(double price) {
         List<Game> games = new ArrayList<>();
-        for (Game game : repository.findAll()) {
-            if (game.getPrice() < price) {
-                games.add(game);
+        lock.readLock().lock();
+        try {
+            for (Game game : repository.findAll()) {
+                if (game.getPrice() < price) {
+                    games.add(game);
+                }
             }
+            return games;
+        } finally {
+            lock.readLock().unlock();
         }
-        return games;
     }
 
     @Override
     public String isAvailable(Integer id) {
-        checkIdExisting(id);
-        Game game = repository.findById(id).get();
-        if (game.getQuantity() > 0) {
-            return "Game avaliable";
+        lock.readLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            if (game.getQuantity() > 0) {
+                return "Game avaliable";
+            }
+            return "Game not avaliable";
+        } finally {
+            lock.readLock().unlock();
         }
-        return "Game not avaliable";
 
     }
 
     //UPDATE
     @Override
     public String buyOneGame(Integer id) {
-        checkIdExisting(id);
-        Game game = repository.findById(id).get();
-        if (game.getQuantity() > 0) {
-            System.out.println(game.getQuantity());
-            game.decreaseQuantity();
-            System.out.println(game.getQuantity());
-            repository.save(game);
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            if (game.getQuantity() > 0) {
+                System.out.println(game.getQuantity());
+                game.decreaseQuantity();
+                System.out.println(game.getQuantity());
+                repository.save(game);
 
-            return game.getName() + " was bought for " + game.getPrice();
+                return game.getName() + " was bought for " + game.getPrice();
+            }
+            return "Not enought copies in stock";
+        } finally {
+            lock.writeLock().unlock();
         }
-        return "Not enought copies in stock";
-
     }
 
     @Override
     public String restockGame(Integer id, int quantity) {
-        checkIdExisting(id);
-        Game game = repository.findById(id).get();
-        if (quantity < 1) {
-            return "Quantity must be greater than 0 to restock";
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            if (quantity < 1) {
+                return "Quantity must be greater than 0 to restock";
+            }
+            System.out.println(game.getQuantity());
+            game.restockQuantity(quantity);
+            System.out.println(game.getQuantity());
+            repository.save(game);
+            return UPDATE_SUCCESS;
+        } finally {
+            lock.readLock().unlock();
         }
-        System.out.println(game.getQuantity());
-        game.restockQuantity(quantity);
-        System.out.println(game.getQuantity());
-        repository.save(game);
-        return UPDATE_SUCCESS;
 
     }
 
@@ -150,35 +201,50 @@ public class GameServiceImpl implements GameService {
         if (factor == 0) {
             return "Factor cannot be equal to 0";
         }
-        checkIdExisting(id);
-        Game game = repository.findById(id).get();
-        game.setOnSale(factor);
-        repository.save(game);
-        return UPDATE_SUCCESS;
-
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            game.setOnSale(factor);
+            repository.save(game);
+            return UPDATE_SUCCESS;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     //DELETE
     @Override
     public String deleteGame(Integer id) {
-        checkIdExisting(id);
-        deletedNumbers.add(id);
-        repository.deleteById(id);
-        return DELETE_SUCCESS;
+
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            deletedNumbers.add(id);
+            repository.deleteById(id);
+            return DELETE_SUCCESS;
+        } finally {
+            lock.readLock().unlock();
+        }
 
     }
 
     @Override
     public String deleteAllUnstockGames() {
         int deletedGames = 0;
-        for (Game game : repository.findAll()) {
-            if (game.getQuantity() < 1) {
-                deletedNumbers.add(game.getId());
-                repository.delete(game);
-                deletedGames++;
+        lock.writeLock().lock();
+        try {
+            for (Game game : repository.findAll()) {
+                if (game.getQuantity() < 1) {
+                    deletedNumbers.add(game.getId());
+                    repository.delete(game);
+                    deletedGames++;
+                }
             }
+            return DELETE_SUCCESS + deletedGames;
+        } finally {
+            lock.readLock().unlock();
         }
-        return DELETE_SUCCESS + " Deletions";
     }
 
     private void checkIdExisting(Integer id) {
