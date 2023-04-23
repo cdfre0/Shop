@@ -1,13 +1,13 @@
 package cdpr.web.service.impl;
 
+import cdpr.web.exception.GameNotFoundException;
+import cdpr.web.exception.IncorrectGameFormatException;
 import cdpr.web.repository.GameRepository;
 import cdpr.web.resources.Game;
 import cdpr.web.service.GameService;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Queue;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +20,12 @@ public class GameServiceImpl implements GameService {
 
     GameRepository repository;
     private static Integer idCounter = 0;
+    
     private final Queue<Integer> deletedNumbers = new LinkedList<>();
     private final static String ID_NOT_EXIST
             = "Game with such ID does not exist in Repository";
+    private final static String UPDATE_SUCCESS = "Update OK";
+    private final static String DELETE_SUCCESS = "Delete OK";
 
     public GameServiceImpl(GameRepository repository) {
         this.repository = repository;
@@ -33,7 +36,8 @@ public class GameServiceImpl implements GameService {
     public String createGame(Game game) {
         if (game.getName() == null || game.getDeveloper() == null
                 || game.getGenre() == null || game.getPrice() == 0.0) {
-            return "Bad format of game";
+            throw new IncorrectGameFormatException(
+                    "Format of game is incorrect");
         }
 
         for (Game existingGame : repository.findAll()) {
@@ -54,11 +58,10 @@ public class GameServiceImpl implements GameService {
     //GET
     @Override
     public Game getGame(Integer id) {
-        if (repository.existsById(id)) {
-            Game game = repository.findById(id).get();
-            return game;
-        } 
-        return null;
+        checkIdExisting(id);
+        Game game = repository.findById(id).get();
+        return game;
+
     }
 
     @Override
@@ -101,49 +104,45 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public String isAvailable(Integer id) {
-        if (repository.existsById(id)) {
-            Game game = repository.findById(id).get();
-            if (game.getQuantity() > 0) {
-                return "Game avaliable";
-            }
-            return "Game not avaliable";
+        checkIdExisting(id);
+        Game game = repository.findById(id).get();
+        if (game.getQuantity() > 0) {
+            return "Game avaliable";
         }
-        return ID_NOT_EXIST;
+        return "Game not avaliable";
 
     }
 
     //UPDATE
     @Override
     public String buyOneGame(Integer id) {
-        if (repository.existsById(id)) {
-            Game game = repository.findById(id).get();
-            if (game.getQuantity() > 0) {
-                System.out.println(game.getQuantity());
-                game.decreaseQuantity();
-                System.out.println(game.getQuantity());
-                repository.save(game);
+        checkIdExisting(id);
+        Game game = repository.findById(id).get();
+        if (game.getQuantity() > 0) {
+            System.out.println(game.getQuantity());
+            game.decreaseQuantity();
+            System.out.println(game.getQuantity());
+            repository.save(game);
 
-                return game.getName() + " was bought for " + game.getPrice();
-            }
-            return "Not enought copies in stock";
+            return game.getName() + " was bought for " + game.getPrice();
         }
-        return ID_NOT_EXIST;
+        return "Not enought copies in stock";
+
     }
 
     @Override
     public String restockGame(Integer id, int quantity) {
-        if (repository.existsById(id)) {
-            Game game = repository.findById(id).get();
-            if (quantity < 1) {
-                return "Quantity must be greater than 0 to restock";
-            }
-            System.out.println(game.getQuantity());
-            game.restockQuantity(quantity);
-            System.out.println(game.getQuantity());
-            repository.save(game);
-            return "Update OK";
+        checkIdExisting(id);
+        Game game = repository.findById(id).get();
+        if (quantity < 1) {
+            return "Quantity must be greater than 0 to restock";
         }
-        return ID_NOT_EXIST;
+        System.out.println(game.getQuantity());
+        game.restockQuantity(quantity);
+        System.out.println(game.getQuantity());
+        repository.save(game);
+        return UPDATE_SUCCESS;
+
     }
 
     @Override
@@ -151,25 +150,22 @@ public class GameServiceImpl implements GameService {
         if (factor == 0) {
             return "Factor cannot be equal to 0";
         }
-        if (repository.existsById(id)) {
-            Game game = repository.findById(id).get();
-            game.setOnSale(factor);
-            repository.save(game);
-            return "Update OK";
-        }
-        return ID_NOT_EXIST;
+        checkIdExisting(id);
+        Game game = repository.findById(id).get();
+        game.setOnSale(factor);
+        repository.save(game);
+        return UPDATE_SUCCESS;
 
     }
 
     //DELETE
     @Override
     public String deleteGame(Integer id) {
-        if (repository.existsById(id)) {
-            deletedNumbers.add(id);
-            repository.deleteById(id);
-            return "Delete OK";
-        }
-        return ID_NOT_EXIST;
+        checkIdExisting(id);
+        deletedNumbers.add(id);
+        repository.deleteById(id);
+        return DELETE_SUCCESS;
+
     }
 
     @Override
@@ -182,7 +178,13 @@ public class GameServiceImpl implements GameService {
                 deletedGames++;
             }
         }
-        return "Delete OK " + deletedGames + " Deletions";
+        return DELETE_SUCCESS + " Deletions";
+    }
+
+    private void checkIdExisting(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new GameNotFoundException(ID_NOT_EXIST);
+        }
     }
 
 }

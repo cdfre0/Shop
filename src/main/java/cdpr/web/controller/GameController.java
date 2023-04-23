@@ -1,7 +1,7 @@
 package cdpr.web.controller;
 
 import cdpr.web.resources.Game;
-import cdpr.web.service.impl.GameServiceImpl;
+import cdpr.web.service.GameService;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Jan Michalec
  */
 @RestController
-@RequestMapping("/games")
 public class GameController {
 
     private final String STRING_TO_INT_ERROR = "Cannot parse String to Integer";
-    private final GameServiceImpl gameService;
+    private final GameService gameService;
    
-    public GameController(GameServiceImpl gameService) {
+    public GameController(GameService gameService) {
         this.gameService = gameService;
 
         Game newGame = new Game("Heroes of Might & Magic V", "Nival", Game.Genre.STRATEGY, 100.0, 3);
@@ -38,7 +37,6 @@ public class GameController {
     //CREATE
     @PostMapping("admin")
     public String createGame(@RequestBody Game newGame) {
-        
         return gameService.createGame(newGame);
     }
 
