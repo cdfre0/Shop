@@ -4,8 +4,9 @@ import cdpr.web.resources.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
+ * Interface of JpaRepository using Game and Integer to make repository.
  *
- * @author cdfre
+ * @author Jan Michalec
  */
-public interface GameRepository extends JpaRepository<Game, Integer>{
+public interface GameRepository extends JpaRepository<Game, Integer> {
 }

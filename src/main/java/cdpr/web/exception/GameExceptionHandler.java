@@ -6,14 +6,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
+ * Class to handle call of exception when Game is not found in repository.
+ * Returns Not Found Http Status with gameException.
  *
  * @author Jan Michalec
  */
-@ControllerAdvice 
+@ControllerAdvice
 public class GameExceptionHandler {
 
     @ExceptionHandler(value = {GameNotFoundException.class})
-    public ResponseEntity<Object> hangleGameNotFoundExpection(GameNotFoundException gameNotFoundException) {
+    public ResponseEntity<Object> hangleGameNotFoundExpection(
+            GameNotFoundException gameNotFoundException) {
 
         GameException gameException = new GameException(
                 HttpStatus.NOT_FOUND,

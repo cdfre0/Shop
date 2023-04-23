@@ -15,41 +15,82 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * Class GameController controls flow of calls between http calls and server.
+ * Checks if calls are correctly build. Makes calls to Service to retrieve data
+ * and send them in ResponseEntity.
  *
  * @author Jan Michalec
  */
 @RestController
 public class GameController {
 
+    /**
+     * Final String for error of failed cased String to Integer.
+     */
     private static final String STRING_TO_INT_ERROR = "Cannot parse String to Integer";
+    /**
+     * Final String to indicate data was successfully collected from repository.
+     */
     private static final String DATA_COLLECTED = "Data collected";
+    /**
+     * Final String to indicate data was successfully updated in repository.
+     */
     private static final String DATA_UPDATED = "Data updated";
+    /**
+     * Final String to indicate data was successfully deleted from repository.
+     */
     private static final String DATA_DELETED = "Data deleted";
+    /**
+     * Game service instance to communicate with repository.
+     */
     private final GameService gameService;
 
+    /**
+     * Constructor initiates gameService and put some values in repository.
+     *
+     * @param gameService GameService to communicate
+     */
     public GameController(GameService gameService) {
         this.gameService = gameService;
-        Game newGame = new Game("Heroes of Might & Magic V", "Nival", Game.Genre.STRATEGY, 100.0, 3);
+
+        Game newGame = new Game("Heroes of Might & Magic V", "Nival",
+                Game.Genre.STRATEGY, 100.0, 3);
         gameService.createGame(newGame);
-        newGame = new Game("Resident Evil 4", "CAPCOM", Game.Genre.SIMULATION, 200.0, 5);
+        newGame = new Game("Resident Evil 4", "CAPCOM",
+                Game.Genre.SIMULATION, 200.0, 5);
         gameService.createGame(newGame);
-        newGame = new Game("The Great Ace Attorney Chronicles ", "CAPCOM", Game.Genre.STRATEGY, 120.0, 100);
+        newGame = new Game("The Great Ace Attorney Chronicles ",
+                "CAPCOM", Game.Genre.STRATEGY, 120.0, 100);
         gameService.createGame(newGame);
     }
 
     //CREATE
+    /**
+     * Method calls gameService to put Game in repository, if data is input
+     * correctly.
+     *
+     * @param newGame Game instance of game
+     * @return Confirmation of success or error
+     */
     @PostMapping("admin")
     public ResponseEntity<Object> createGame(@RequestBody Game newGame) {
         if (newGame.getName() == null || newGame.getDeveloper() == null
                 || newGame.getGenre() == null || newGame.getPrice() == 0.0) {
-            return ResponseHandler.responseBuilder("Wrong format of game"
-                    , HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
+            return ResponseHandler.responseBuilder("Wrong format of game",
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
         }
         return ResponseHandler.responseBuilder("Game put in repository",
                 HttpStatus.CREATED, gameService.createGame(newGame));
     }
 
     //GETS
+    /**
+     * Method calls gameService to retrieve data of game of given id. Checks if
+     * id is an int.
+     *
+     * @param stringId String should contain number
+     * @return Confirmation of success or error
+     */
     @GetMapping("{stringId}")
     public ResponseEntity<Object> getGameById(@PathVariable String stringId) {
         try {
@@ -62,13 +103,28 @@ public class GameController {
         }
     }
 
+    /**
+     * Method calls gameService to retrieve data of all games.
+     *
+     * @return Confirmation of success or error
+     */
     @GetMapping("all")
     public ResponseEntity<Object> getAllGames() {
         return ResponseHandler.responseBuilder(DATA_COLLECTED,
-                    HttpStatus.OK, gameService.getAllGames());
+                HttpStatus.OK, gameService.getAllGames());
     }
 
     //I know, controversial 
+    /**
+     * Method calls gameService to retrieve data under specific conditions. If
+     * is a number, it looks for games of value less than it. If is type of
+     * Genre, looks for games of this Genre. Otherwise, looks for games of this
+     * developer.
+     *
+     * @param variable String variable with condition
+     * @return Confirmation of success or error
+     */
+    //I am aware it should be 3 methods.
     @GetMapping("all/{variable}")
     public ResponseEntity<Object> getSpecificGames(@PathVariable String variable) {
         try {
@@ -79,13 +135,14 @@ public class GameController {
             try {
                 Game.Genre genre = Game.Genre.valueOf(variable);
                 return ResponseHandler.responseBuilder(DATA_COLLECTED,
-                    HttpStatus.OK, gameService.getGameByGenre(genre));
+                        HttpStatus.OK, gameService.getGameByGenre(genre));
             } catch (IllegalArgumentException ee) {
                 return ResponseHandler.responseBuilder(DATA_COLLECTED,
-                    HttpStatus.OK, gameService.getGameByDev(variable));
+                        HttpStatus.OK, gameService.getGameByDev(variable));
             }
         }
     }
+
 
     @GetMapping("avaliable/{stringId}")
     public ResponseEntity<Object> isAvaliable(@PathVariable String stringId) {
@@ -155,7 +212,7 @@ public class GameController {
     @DeleteMapping("admin/clean")
     public ResponseEntity<Object> deleteUnstocked() {
         return ResponseHandler.responseBuilder(DATA_DELETED,
-                    HttpStatus.OK, gameService.deleteAllUnstockGames());
+                HttpStatus.OK, gameService.deleteAllUnstockGames());
     }
 
 }
