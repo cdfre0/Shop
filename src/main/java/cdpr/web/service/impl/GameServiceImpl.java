@@ -1,7 +1,6 @@
 package cdpr.web.service.impl;
 
 import cdpr.web.exception.GameNotFoundException;
-import cdpr.web.exception.IncorrectGameFormatException;
 import cdpr.web.repository.GameRepository;
 import cdpr.web.resources.Game;
 import cdpr.web.service.GameService;
@@ -42,11 +41,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public String createGame(Game game) {
 
-        if (game.getName() == null || game.getDeveloper() == null
-                || game.getGenre() == null || game.getPrice() == 0.0) {
-            throw new IncorrectGameFormatException(
-                    "Format of game is incorrect");
-        }
+        
         lock.writeLock().lock();
         try {
             for (Game existingGame : repository.findAll()) {
@@ -163,9 +158,7 @@ public class GameServiceImpl implements GameService {
             checkIdExisting(id);
             Game game = repository.findById(id).get();
             if (game.getQuantity() > 0) {
-                System.out.println(game.getQuantity());
                 game.decreaseQuantity();
-                System.out.println(game.getQuantity());
                 repository.save(game);
 
                 return game.getName() + " was bought for " + game.getPrice();
@@ -185,13 +178,11 @@ public class GameServiceImpl implements GameService {
             if (quantity < 1) {
                 return "Quantity must be greater than 0 to restock";
             }
-            System.out.println(game.getQuantity());
             game.restockQuantity(quantity);
-            System.out.println(game.getQuantity());
             repository.save(game);
             return UPDATE_SUCCESS;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
 
     }
@@ -209,7 +200,7 @@ public class GameServiceImpl implements GameService {
             repository.save(game);
             return UPDATE_SUCCESS;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
@@ -224,7 +215,7 @@ public class GameServiceImpl implements GameService {
             repository.deleteById(id);
             return DELETE_SUCCESS;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
 
     }
@@ -243,7 +234,7 @@ public class GameServiceImpl implements GameService {
             }
             return DELETE_SUCCESS + deletedGames;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
