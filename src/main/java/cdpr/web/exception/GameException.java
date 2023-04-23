@@ -12,13 +12,15 @@ public class GameException {
     private final Throwable throwable;
     private final HttpStatus httpStatus;
 
-    public GameException(String message, Throwable throwable,
-            HttpStatus httpStatus) {
+    public GameException(HttpStatus httpStatus,String message,
+            Throwable throwable) {
         this.message = message;
         this.throwable = throwable;
         this.httpStatus = httpStatus;
     }
-
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
     public String getMessage() {
         return message;
     }
@@ -27,8 +29,6 @@ public class GameException {
         return throwable;
     }
 
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
+    
 
 }
