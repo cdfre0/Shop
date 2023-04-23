@@ -143,7 +143,13 @@ public class GameController {
         }
     }
 
-
+    /**
+     * Method calls gameSerive to check if game has any copies in store given
+     * it's id.
+     *
+     * @param stringId String should contain number
+     * @return Confirmation of success or error
+     */
     @GetMapping("avaliable/{stringId}")
     public ResponseEntity<Object> isAvaliable(@PathVariable String stringId) {
         try {
@@ -156,6 +162,13 @@ public class GameController {
         }
     }
 
+    /**
+     * Method calls gameService to buy one copy of game given it's id. Decreases
+     * number of game stock by 1.
+     *
+     * @param stringId String should contain number
+     * @return Confirmation of success or error
+     */
     @PutMapping("{stringId}")
     public ResponseEntity<Object> buyOneGame(@PathVariable String stringId) {
         try {
@@ -168,6 +181,13 @@ public class GameController {
         }
     }
 
+    /**
+     * Method calls gameSerivce to add stock of game by it's id.
+     *
+     * @param stringId String should contain number
+     * @param stringQuantity String should contain number greater than 0
+     * @return Confirmation of success or error
+     */
     @PutMapping("admin")
     public ResponseEntity<Object> restockGame(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "q") String stringQuantity) {
@@ -182,6 +202,14 @@ public class GameController {
         }
     }
 
+    /**
+     * Method calls gameService to change price of game multiplying it's price
+     * by a factor. Game fetched by it's id.
+     *
+     * @param stringId String should contain number
+     * @param stringFactor String should contain double
+     * @return Confirmation of success or error
+     */
     @PutMapping("admin/sale")
     public ResponseEntity<Object> putOnSale(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "factor") String stringFactor) {
@@ -197,6 +225,12 @@ public class GameController {
     }
 
     //DELETE
+    /**
+     * Method calls GameService to delete game by it's id.
+     *
+     * @param stringId String should contain number
+     * @return Confirmation of success or error
+     */
     @DeleteMapping("admin/{stringId}")
     public ResponseEntity<Object> deleteGame(@PathVariable String stringId) {
         try {
@@ -209,6 +243,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Method calls GameService to delete games that has 0 copies in repository.
+     *
+     * @return Confirmation of success or error
+     */
     @DeleteMapping("admin/clean")
     public ResponseEntity<Object> deleteUnstocked() {
         return ResponseHandler.responseBuilder(DATA_DELETED,

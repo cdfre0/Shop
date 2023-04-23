@@ -15,8 +15,8 @@ public interface GameService {
 
     //Gets
     public Game getGame(Integer id);
-
-    public String isAvailable(Integer id);
+    
+    public boolean isAvailable(Integer id);
 
     public List<Game> getAllGames();
 

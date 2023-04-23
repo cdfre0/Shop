@@ -13,20 +13,39 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.stereotype.Service;
 
 /**
+ * Class implements GAmeSerice interface. Used to communicate with Repository
+ * and change it's instances.Supports CRUD methods. Supports multi threading by
+ * locks.
  *
  * @author Jan Michalec
  */
 @Service
 public class GameServiceImpl implements GameService {
 
+    /**
+     * Final String for error of not existing ID in Repository.
+     */
     private final static String ID_NOT_EXIST
             = "Game with such ID does not exist in Repository";
+    /**
+     * Final String to indicate Update success.
+     */
     private final static String UPDATE_SUCCESS = "Update OK";
+    /**
+     * Final String to indicate Deletion success.
+     */
     private final static String DELETE_SUCCESS = "Delete OK";
-
+    /**
+     * Counter of IDs.
+     */
     private static Integer idCounter = 0;
-    private final Queue<Integer> deletedNumbers = new LinkedList<>();
-
+    /**
+     * Queue of deleted ids for reuse.
+     */
+    private final Queue<Integer> deletedIds = new LinkedList<>();
+    /**
+     * Repository for saving data.
+     */
     GameRepository repository;
     /**
      * Lock for reading and writing data in database.
@@ -38,10 +57,14 @@ public class GameServiceImpl implements GameService {
     }
 
     //CREATE
+    /**
+     * Method saves game in repository if it does not exist there.
+     *
+     * @param game Game to save
+     * @return String information if success or error
+     */
     @Override
     public String createGame(Game game) {
-
-        
         lock.writeLock().lock();
         try {
             for (Game existingGame : repository.findAll()) {
@@ -50,10 +73,10 @@ public class GameServiceImpl implements GameService {
                 }
             }
 
-            if (deletedNumbers.isEmpty()) {
+            if (deletedIds.isEmpty()) {
                 game.setId(idCounter++);
             } else {
-                game.setId(deletedNumbers.poll());
+                game.setId(deletedIds.poll());
             }
             repository.save(game);
             return "Create OK";
@@ -63,6 +86,13 @@ public class GameServiceImpl implements GameService {
     }
 
     //GET
+    /**
+     * Method retrieves details of Game from repository given id.
+     *
+     * @param id Integer id of Game
+     * @thows
+     * @return Game instance or error message
+     */
     @Override
     public Game getGame(Integer id) {
         lock.readLock().lock();
@@ -76,6 +106,11 @@ public class GameServiceImpl implements GameService {
 
     }
 
+    /**
+     * Method retrieves details of all games from repository.
+     *
+     * @return List of Games
+     */
     @Override
     public List<Game> getAllGames() {
         lock.readLock().lock();
@@ -86,6 +121,12 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Method retrieves details of games containing given developer name.
+     *
+     * @param developerName String developerName to check in Game instance
+     * @return List of Games
+     */
     @Override
     public List<Game> getGameByDev(String developerName) {
         List<Game> games = new ArrayList<>();
@@ -102,6 +143,12 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Method retrieves details of games containing given Genre type.
+     *
+     * @param genre Genre type to check in Game instance
+     * @return List of Games
+     */
     @Override
     public List<Game> getGameByGenre(Game.Genre genre) {
         List<Game> games = new ArrayList<>();
@@ -118,6 +165,12 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Method retrieves details of games that price is less than given.
+     *
+     * @param price double an upper boundary to check Games' price
+     * @return List of Games
+     */
     @Override
     public List<Game> showStockLessThan(double price) {
         List<Game> games = new ArrayList<>();
@@ -134,16 +187,22 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Method checks if Game has any copies in repository, given id.
+     *
+     * @param id Integer id of Game
+     * @return boolean true if exist
+     */
     @Override
-    public String isAvailable(Integer id) {
+    public boolean isAvailable(Integer id) {
         lock.readLock().lock();
         try {
             checkIdExisting(id);
             Game game = repository.findById(id).get();
             if (game.getQuantity() > 0) {
-                return "Game avaliable";
+                return true;
             }
-            return "Game not avaliable";
+            return false;
         } finally {
             lock.readLock().unlock();
         }
@@ -151,6 +210,12 @@ public class GameServiceImpl implements GameService {
     }
 
     //UPDATE
+    /**
+     * Method decreases Quantity of Games Quantity, given it's id.
+     *
+     * @param id Integer id of Game
+     * @return String Confirmation of success or error
+     */
     @Override
     public String buyOneGame(Integer id) {
         lock.writeLock().lock();
@@ -169,6 +234,13 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Method adds quantity of Game given number to add and game's id.
+     *
+     * @param id Integer id of Game
+     * @param quantity int number to add
+     * @return String Confirmation of success or error
+     */
     @Override
     public String restockGame(Integer id, int quantity) {
         lock.writeLock().lock();
@@ -187,6 +259,14 @@ public class GameServiceImpl implements GameService {
 
     }
 
+    /**
+     * Method changes price of Game given factor to multiply price and game's
+     * id.
+     *
+     * @param id Integer id of Game
+     * @param factor double factor that multiplies price
+     * @return String Confirmation of success or error
+     */
     @Override
     public String putGameOnSale(Integer id, double factor) {
         if (factor == 0) {
@@ -205,13 +285,19 @@ public class GameServiceImpl implements GameService {
     }
 
     //DELETE
+    /**
+     * Method deletes Game from repository given Game's id.
+     *
+     * @param id Integer id of Game
+     * @return Confirmation of success or error
+     */
     @Override
     public String deleteGame(Integer id) {
 
         lock.writeLock().lock();
         try {
             checkIdExisting(id);
-            deletedNumbers.add(id);
+            deletedIds.add(id);
             repository.deleteById(id);
             return DELETE_SUCCESS;
         } finally {
@@ -220,6 +306,12 @@ public class GameServiceImpl implements GameService {
 
     }
 
+    /**
+     * Method deletes all Games from repository if Game's quantity is equal to
+     * 0.
+     *
+     * @return String Confirmation of success and amount of deleted Games.
+     */
     @Override
     public String deleteAllUnstockGames() {
         int deletedGames = 0;
@@ -227,7 +319,7 @@ public class GameServiceImpl implements GameService {
         try {
             for (Game game : repository.findAll()) {
                 if (game.getQuantity() < 1) {
-                    deletedNumbers.add(game.getId());
+                    deletedIds.add(game.getId());
                     repository.delete(game);
                     deletedGames++;
                 }
@@ -238,6 +330,13 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Method Checks if Game of given id exist in repository.
+     *
+     *
+     * @param id Integer id of Game
+     * @throws GameNotFoundException if does not exist.
+     */
     private void checkIdExisting(Integer id) {
         if (!repository.existsById(id)) {
             throw new GameNotFoundException(ID_NOT_EXIST);
