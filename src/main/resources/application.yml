@@ -1,0 +1,11 @@
+## YAML Template.
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/myschema?useSSL=false
+        username: user
+        password: password
+
+
+#JPA Settings
+    jpa.hibernate.ddl_auto: create
+---
