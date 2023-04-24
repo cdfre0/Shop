@@ -10,6 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Jan Michalec
  */
 public interface GameRepository extends JpaRepository<Game, Integer> {
-
     List<Game> findAllByName(String name);
 }
