@@ -19,10 +19,10 @@ public class Game {
      */
     public enum Genre {
         /**
-         * Types of Genres; 8 to choose from.
+         * Types of Genres; 10 to choose from.
          */
         SHOOTER, RPG, PLATFORM, STRATEGY, OPENWORLD, SIMULATION,
-        RTS, PUZZLE;
+        RTS, PUZZLE, ACTION, HORROR;
     }
 
     /**
