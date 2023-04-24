@@ -324,7 +324,7 @@ public class GameServiceImpl implements GameService {
                     deletedGames++;
                 }
             }
-            return DELETE_SUCCESS + deletedGames;
+            return DELETE_SUCCESS + " " + deletedGames;
         } finally {
             lock.writeLock().unlock();
         }

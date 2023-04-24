@@ -190,7 +190,7 @@ public class GameController {
      */
     @PutMapping("admin")
     public ResponseEntity<Object> restockGame(@RequestParam(name = "id") String stringId,
-            @RequestParam(name = "q") String stringQuantity) {
+            @RequestParam(name = "quantity") String stringQuantity) {
         try {
             Integer id = Integer.parseInt(stringId);
             int quantity = Integer.parseInt(stringQuantity);
