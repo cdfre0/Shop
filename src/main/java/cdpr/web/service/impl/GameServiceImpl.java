@@ -32,6 +32,10 @@ public class GameServiceImpl implements GameService {
      */
     private final static String UPDATE_SUCCESS = "Update OK";
     /**
+     * Final String to indicate failure of Update.
+     */
+    private final static String UPDATE_FAIL = "Update Failed";
+    /**
      * Final String to indicate Deletion success.
      */
     private final static String DELETE_SUCCESS = "Delete OK";
@@ -172,8 +176,10 @@ public class GameServiceImpl implements GameService {
         lock.readLock().lock();
         try {
             for (Game game : repository.findAll()) {
-                if (game.getGenre().equals(genre)) {
-                    games.add(game);
+                for (Game.Genre existingGenre : game.getGenres()) {
+                    if (existingGenre.equals(genre)) {
+                        games.add(game);
+                    }
                 }
             }
             return games;
@@ -294,6 +300,60 @@ public class GameServiceImpl implements GameService {
             checkIdExisting(id);
             Game game = repository.findById(id).get();
             game.setOnSale(factor);
+            repository.save(game);
+            return UPDATE_SUCCESS;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Method adds genre to Game's list of genre, given game's id and genre.
+     *
+     * @param id Integer id of Game
+     * @param genre Genre type
+     * @return String Confirmation of success or error
+     */
+    @Override
+    public String addGenreToGame(Integer id, Game.Genre genre) {
+
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            if (game.hasGenre(genre)) {
+                return UPDATE_FAIL + ", game has such genre already.";
+            }
+            game.addGenre(genre);
+            repository.save(game);
+            return UPDATE_SUCCESS;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Method deletes genre from Game's list of genre, given game's id and
+     * genre.
+     *
+     * @param id Integer id of Game
+     * @param genre Genre type
+     * @return String Confirmation of success or error
+     */
+    @Override
+    public String deleteGenreFromGame(Integer id, Game.Genre genre) {
+
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            if (!game.hasGenre(genre)) {
+                return UPDATE_FAIL + ", game does not have such genre.";
+            }
+            if(game.getGenres().size() < 2){
+                return UPDATE_FAIL + ", game needs to have at least 1 genre.";
+            }
+            game.deleteGenre(genre);
             repository.save(game);
             return UPDATE_SUCCESS;
         } finally {

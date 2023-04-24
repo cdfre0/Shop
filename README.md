@@ -22,21 +22,29 @@ Game Structure in JSON
     "id": 1,
     "name": "Resident Evil 4",
     "developer": "CAPCOM",
-    "genre": "ACTION",
-    "price": 44.0,
-    "quantity": 5
+    "price": 200.0,
+    "quantity": 5,
+    "genre": [
+        "HORROR",
+        "ACTION"
+    ]
 }
 Game structure that can be passed in POST call:
 1. {
     "name": "Resident Evil 4",
     "developer": "CAPCOM",
-    "genre": "HORROR",
+    "genre": [
+        "HORROR"
+       ],
     "price": 200.0,
 }
 2.  {
     "name": "Resident Evil 4",
     "developer": "CAPCOM",
-    "genre": "HORROR",
+    "genre": [
+        "HORROR",
+        "ACTION"
+    ],
     "price": 55.0,
     "quantity": 12
 }
@@ -73,7 +81,9 @@ Step 4: Communicate with server Using those calls:
                     Game is passed in body request of call. If quantity is not passed in call, it will be set to 0. 
             ##PUT
                 * admin?id={id}&quantity={q} - supplies stocks of game of this id by "q"
-                * admin/sale?id={id}&factor={f} - Mutiplies price ofgame of this id by "f"; f should be double
+                * admin/sale?id={id}&factor={f} - Mutiplies price of game of this id by "f"; f should be double
+                * admin/addGenre?id={id}&genre={genre} - Adds new Genre to game's data
+                * admin/deleteGenre?id={id}&genre={genre} - Deletes Genre type from game's data
             ##DELETE
                 * admin/{id} - deletes game from shop by it's id
                 * admin/clean - deletes all games from shop that stock number is equal to 0

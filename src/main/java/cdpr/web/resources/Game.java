@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.util.Objects;
 import jakarta.persistence.Table;
+import java.util.List;
 
 /**
  * Class stores all necessary data for game object.
@@ -42,7 +43,7 @@ public class Game {
     /**
      * Enum Genre type of game.
      */
-    private Genre genre;
+    private List<Genre> genres;
     /**
      * Double price of game.
      */
@@ -58,19 +59,19 @@ public class Game {
     public Game() {
     }
 
-    public Game(String name, String developer, Genre genre, double price) {
+    public Game(String name, String developer, List<Genre> genres, double price) {
         this.name = name;
         this.developer = developer;
-        this.genre = genre;
+        this.genres = genres;
         this.price = price;
         this.quantity = 0;
     }
 
-    public Game(String name, String developer, Genre genre, double price,
+    public Game(String name, String developer, List<Genre> genres, double price,
             int quantity) {
         this.name = name;
         this.developer = developer;
-        this.genre = genre;
+        this.genres = genres;
         this.price = price;
         this.quantity = quantity;
     }
@@ -130,21 +131,49 @@ public class Game {
     }
 
     /**
-     * Gets Genre type
+     * Gets Genres type
      *
-     * @return enum Genre
+     * @return List<Genres> Genres
      */
-    public Genre getGenre() {
-        return genre;
+    public List<Genre> getGenres() {
+        return genres;
     }
 
     /**
-     * Sets new Genre for game.
+     * Sets new Genres for game.
      *
-     * @param genre enum Genre new Genre
+     * @param genres List<Genre> Genre new Genre
      */
-    public void setGenre(Genre genre) {
-        this.genre = genre;
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+    }
+
+    /**
+     * Checks if Game has this genre in it's list
+     *
+     * @param genre Genre to check
+     * @return true if contains
+     */
+    public boolean hasGenre(Genre genre) {
+        return genres.contains(genre);
+    }
+
+    /**
+     * Adds genre to Genres collection.
+     *
+     * @param genre Genre to add
+     */
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
+
+    /**
+     * Deletes genre from Genres collection.
+     *
+     * @param genre Genre to delete
+     */
+    public void deleteGenre(Genre genre) {
+        genres.remove(genre);
     }
 
     /**
@@ -211,7 +240,7 @@ public class Game {
     @Override
     public String toString() {
         return "Game{" + "id=" + id + ", name=" + name
-                + ", developer=" + developer + ", genre=" + genre
+                + ", developer=" + developer + ", genre=" + genres
                 + ", price=" + price + ", quantity=" + quantity + '}';
     }
 
@@ -233,7 +262,7 @@ public class Game {
         if (!Objects.equals(this.developer, other.developer)) {
             return false;
         }
-        return this.genre == other.genre;
+        return Objects.equals(this.genres, other.genres);
     }
 
 }

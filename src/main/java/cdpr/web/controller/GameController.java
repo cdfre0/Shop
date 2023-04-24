@@ -3,6 +3,7 @@ package cdpr.web.controller;
 import cdpr.web.resources.Game;
 import cdpr.web.response.ResponseHandler;
 import cdpr.web.service.GameService;
+import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,21 +26,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameController {
 
     /**
-     * Final String for error of failed cased String to Integer.
+     * Final String for error of failed cast String to Integer.
      */
     private static final String STRING_TO_INT_ERROR = "Cannot parse String to Integer";
     /**
-     * Final String to indicate data was successfully collected from repository.
+     * Final String for error of failed cast String to Genre type
      */
-    private static final String DATA_COLLECTED = "Data collected";
+    private static final String GENRE_INCORRECT = "Genre type incorrect";
+    
     /**
-     * Final String to indicate data was successfully updated in repository.
+     * Final String to indicate call successfully reached service.
      */
-    private static final String DATA_UPDATED = "Data updated";
-    /**
-     * Final String to indicate data was successfully deleted from repository.
-     */
-    private static final String DATA_DELETED = "Data deleted";
+    private static final String CALL_REACHED = "Call reached server";
+
     /**
      * Game service instance to communicate with repository.
      */
@@ -54,13 +53,13 @@ public class GameController {
         this.gameService = gameService;
 
         Game newGame = new Game("Heroes of Might & Magic V", "Nival",
-                Game.Genre.STRATEGY, 100.0, 3);
+                Arrays.asList(Game.Genre.STRATEGY), 100.0, 3);
         gameService.createGame(newGame);
         newGame = new Game("Resident Evil 4", "CAPCOM",
-                Game.Genre.SIMULATION, 200.0, 5);
+                Arrays.asList(Game.Genre.HORROR, Game.Genre.ACTION), 200.0, 5);
         gameService.createGame(newGame);
         newGame = new Game("The Great Ace Attorney Chronicles ",
-                "CAPCOM", Game.Genre.STRATEGY, 120.0, 100);
+                "CAPCOM", Arrays.asList(Game.Genre.STRATEGY), 120.0, 100);
         gameService.createGame(newGame);
     }
 
@@ -75,7 +74,7 @@ public class GameController {
     @PostMapping("admin")
     public ResponseEntity<Object> createGame(@RequestBody Game newGame) {
         if (newGame.getName() == null || newGame.getDeveloper() == null
-                || newGame.getGenre() == null || newGame.getPrice() == 0.0) {
+                || newGame.getGenres() == null || newGame.getPrice() == 0.0) {
             return ResponseHandler.responseBuilder("Wrong format of game",
                     HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
         }
@@ -95,7 +94,7 @@ public class GameController {
     public ResponseEntity<Object> getGameById(@PathVariable String stringId) {
         try {
             int id = Integer.parseInt(stringId);
-            return ResponseHandler.responseBuilder(DATA_COLLECTED,
+            return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.getGame(id));
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
@@ -111,7 +110,7 @@ public class GameController {
      */
     @GetMapping("{name}")
     public ResponseEntity<Object> getGameByName(@PathVariable String name) {
-        return ResponseHandler.responseBuilder(DATA_COLLECTED,
+        return ResponseHandler.responseBuilder(CALL_REACHED,
                 HttpStatus.OK, gameService.findGameByName(name));
     }
 
@@ -122,7 +121,7 @@ public class GameController {
      */
     @GetMapping("all")
     public ResponseEntity<Object> getAllGames() {
-        return ResponseHandler.responseBuilder(DATA_COLLECTED,
+        return ResponseHandler.responseBuilder(CALL_REACHED,
                 HttpStatus.OK, gameService.getAllGames());
     }
 
@@ -141,15 +140,15 @@ public class GameController {
     public ResponseEntity<Object> getSpecificGames(@PathVariable String variable) {
         try {
             int price = Integer.parseInt(variable);
-            return ResponseHandler.responseBuilder(DATA_COLLECTED,
+            return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.showStockLessThan(price));
         } catch (NumberFormatException e) {
             try {
                 Game.Genre genre = Game.Genre.valueOf(variable);
-                return ResponseHandler.responseBuilder(DATA_COLLECTED,
+                return ResponseHandler.responseBuilder(CALL_REACHED,
                         HttpStatus.OK, gameService.getGameByGenre(genre));
             } catch (IllegalArgumentException ee) {
-                return ResponseHandler.responseBuilder(DATA_COLLECTED,
+                return ResponseHandler.responseBuilder(CALL_REACHED,
                         HttpStatus.OK, gameService.getGameByDev(variable));
             }
         }
@@ -166,7 +165,7 @@ public class GameController {
     public ResponseEntity<Object> isAvaliable(@PathVariable String stringId) {
         try {
             Integer id = Integer.parseInt(stringId);
-            return ResponseHandler.responseBuilder(DATA_COLLECTED,
+            return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.isAvailable(id));
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
@@ -185,7 +184,7 @@ public class GameController {
     public ResponseEntity<Object> buyOneGame(@PathVariable String stringId) {
         try {
             Integer id = Integer.parseInt(stringId);
-            return ResponseHandler.responseBuilder(DATA_UPDATED,
+            return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.buyOneGame(id));
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
@@ -206,7 +205,7 @@ public class GameController {
         try {
             Integer id = Integer.parseInt(stringId);
             int quantity = Integer.parseInt(stringQuantity);
-            return ResponseHandler.responseBuilder(DATA_UPDATED,
+            return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.restockGame(id, quantity));
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
@@ -225,17 +224,75 @@ public class GameController {
     @PutMapping("admin/sale")
     public ResponseEntity<Object> putOnSale(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "factor") String stringFactor) {
+        Integer id;
         try {
-            Integer id = Integer.parseInt(stringId);
-            double factor = Double.parseDouble(stringFactor);
-            return ResponseHandler.responseBuilder(DATA_UPDATED,
-                    HttpStatus.OK, gameService.putGameOnSale(id, factor));
+            id = Integer.parseInt(stringId);
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
+        double factor = Double.parseDouble(stringFactor);
+        return ResponseHandler.responseBuilder(CALL_REACHED,
+                HttpStatus.OK, gameService.putGameOnSale(id, factor));
+
     }
 
+    /**
+     * Method calls gameService to add genre to game's list of genre. Game
+     * fetched by it's id.
+     *
+     * @param stringId String should contain number
+     * @param stringGenre String should contain Genre name
+     * @return Confirmation of success or error
+     */
+    @PutMapping("admin/addGenre")
+    public ResponseEntity<Object> addGenreToGame(@RequestParam(name = "id") String stringId,
+            @RequestParam(name = "genre") String stringGenre) {
+        Integer id;
+        try {
+            id = Integer.parseInt(stringId);
+        } catch (NumberFormatException e) {
+            return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        Game.Genre genre;
+        try {
+            genre = Game.Genre.valueOf(stringGenre);
+        } catch (Exception e) {
+            return ResponseHandler.responseBuilder(GENRE_INCORRECT,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        return ResponseHandler.responseBuilder(CALL_REACHED,
+                HttpStatus.OK, gameService.addGenreToGame(id, genre));
+    }
+/**
+     * Method calls gameService to delete genre from game's list of genre. Game
+     * fetched by it's id.
+     *
+     * @param stringId String should contain number
+     * @param stringGenre String should contain Genre name
+     * @return Confirmation of success or error
+     */
+    @PutMapping("admin/deleteGenre")
+    public ResponseEntity<Object> deleteGenreToGame(@RequestParam(name = "id") String stringId,
+            @RequestParam(name = "genre") String stringGenre) {
+        Integer id;
+        try {
+            id = Integer.parseInt(stringId);
+        } catch (NumberFormatException e) {
+            return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        Game.Genre genre;
+        try {
+            genre = Game.Genre.valueOf(stringGenre);
+        } catch (Exception e) {
+            return ResponseHandler.responseBuilder(GENRE_INCORRECT,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        return ResponseHandler.responseBuilder(CALL_REACHED,
+                HttpStatus.OK, gameService.deleteGenreFromGame(id, genre));
+    }
     //DELETE
     /**
      * Method calls GameService to delete game by it's id.
@@ -247,7 +304,7 @@ public class GameController {
     public ResponseEntity<Object> deleteGame(@PathVariable String stringId) {
         try {
             Integer id = Integer.parseInt(stringId);
-            return ResponseHandler.responseBuilder(DATA_DELETED,
+            return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.deleteGame(id));
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
@@ -262,7 +319,7 @@ public class GameController {
      */
     @DeleteMapping("admin/clean")
     public ResponseEntity<Object> deleteUnstocked() {
-        return ResponseHandler.responseBuilder(DATA_DELETED,
+        return ResponseHandler.responseBuilder(CALL_REACHED,
                 HttpStatus.OK, gameService.deleteAllUnstockGames());
     }
 

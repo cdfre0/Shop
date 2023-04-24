@@ -32,6 +32,10 @@ public interface GameService {
     public String buyOneGame(Integer id);
 
     public String restockGame(Integer id, int quantity);
+    
+    public String addGenreToGame(Integer id, Game.Genre genre);
+    
+    public String deleteGenreFromGame(Integer id, Game.Genre genre);
 
     public String putGameOnSale(Integer id, double factor);
 
