@@ -91,7 +91,7 @@ public class GameController {
      * @param stringId String should contain number
      * @return Confirmation of success with Games or error
      */
-    @GetMapping("{stringId}")
+    @GetMapping("byId/{stringId}")
     public ResponseEntity<Object> getGameById(@PathVariable String stringId) {
         try {
             int id = Integer.parseInt(stringId);
