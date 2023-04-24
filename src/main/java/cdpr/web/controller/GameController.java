@@ -4,6 +4,7 @@ import cdpr.web.resources.Game;
 import cdpr.web.response.ResponseHandler;
 import cdpr.web.service.GameService;
 import java.util.Arrays;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,11 +34,13 @@ public class GameController {
      * Final String for error of failed cast String to Genre type
      */
     private static final String GENRE_INCORRECT = "Genre type incorrect";
-    
+
     /**
      * Final String to indicate call successfully reached service.
      */
     private static final String CALL_REACHED = "Call reached server";
+
+    private static final String EMPTY_SET = "Retured Collection is empty";
 
     /**
      * Game service instance to communicate with repository.
@@ -110,8 +113,13 @@ public class GameController {
      */
     @GetMapping("{name}")
     public ResponseEntity<Object> getGameByName(@PathVariable String name) {
+        List<Game> list = gameService.findGameByName(name);
+        if (list.isEmpty()) {
+            return ResponseHandler.responseBuilder(EMPTY_SET,
+                    HttpStatus.BAD_REQUEST, null);
+        }
         return ResponseHandler.responseBuilder(CALL_REACHED,
-                HttpStatus.OK, gameService.findGameByName(name));
+                HttpStatus.OK, list);
     }
 
     /**
@@ -121,8 +129,13 @@ public class GameController {
      */
     @GetMapping("all")
     public ResponseEntity<Object> getAllGames() {
+        List<Game> list = gameService.getAllGames();
+        if (list.isEmpty()) {
+            return ResponseHandler.responseBuilder(EMPTY_SET,
+                    HttpStatus.BAD_REQUEST, null);
+        }
         return ResponseHandler.responseBuilder(CALL_REACHED,
-                HttpStatus.OK, gameService.getAllGames());
+                HttpStatus.OK, list);
     }
 
     //I know, controversial 
@@ -138,18 +151,34 @@ public class GameController {
     //I am aware it should be 3 methods.
     @GetMapping("all/{variable}")
     public ResponseEntity<Object> getSpecificGames(@PathVariable String variable) {
+        List<Game> list;
         try {
             int price = Integer.parseInt(variable);
+            list = gameService.showStockLessThan(price);
+            if (list.isEmpty()) {
+                return ResponseHandler.responseBuilder(EMPTY_SET,
+                        HttpStatus.BAD_REQUEST, null);
+            }
             return ResponseHandler.responseBuilder(CALL_REACHED,
-                    HttpStatus.OK, gameService.showStockLessThan(price));
+                    HttpStatus.OK, list);
         } catch (NumberFormatException e) {
             try {
                 Game.Genre genre = Game.Genre.valueOf(variable);
+                list = gameService.getGameByGenre(genre);
+                if (list.isEmpty()) {
+                    return ResponseHandler.responseBuilder(EMPTY_SET,
+                            HttpStatus.BAD_REQUEST, null);
+                }
                 return ResponseHandler.responseBuilder(CALL_REACHED,
-                        HttpStatus.OK, gameService.getGameByGenre(genre));
+                        HttpStatus.OK, list);
             } catch (IllegalArgumentException ee) {
+                list = gameService.getGameByDev(variable);
+                if (list.isEmpty()) {
+                    return ResponseHandler.responseBuilder(EMPTY_SET,
+                            HttpStatus.BAD_REQUEST, null);
+                }
                 return ResponseHandler.responseBuilder(CALL_REACHED,
-                        HttpStatus.OK, gameService.getGameByDev(variable));
+                        HttpStatus.OK, list);
             }
         }
     }
@@ -265,7 +294,8 @@ public class GameController {
         return ResponseHandler.responseBuilder(CALL_REACHED,
                 HttpStatus.OK, gameService.addGenreToGame(id, genre));
     }
-/**
+
+    /**
      * Method calls gameService to delete genre from game's list of genre. Game
      * fetched by it's id.
      *
@@ -274,7 +304,7 @@ public class GameController {
      * @return Confirmation of success or error
      */
     @PutMapping("admin/deleteGenre")
-    public ResponseEntity<Object> deleteGenreToGame(@RequestParam(name = "id") String stringId,
+    public ResponseEntity<Object> deleteGenreFromGame(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "genre") String stringGenre) {
         Integer id;
         try {
@@ -293,6 +323,7 @@ public class GameController {
         return ResponseHandler.responseBuilder(CALL_REACHED,
                 HttpStatus.OK, gameService.deleteGenreFromGame(id, genre));
     }
+
     //DELETE
     /**
      * Method calls GameService to delete game by it's id.
