@@ -1,6 +1,7 @@
 package cdpr.web.repository;
 
 import cdpr.web.resources.Game;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -9,4 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Jan Michalec
  */
 public interface GameRepository extends JpaRepository<Game, Integer> {
+
+    List<Game> findAllByName(String name);
 }

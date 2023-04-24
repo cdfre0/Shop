@@ -15,10 +15,12 @@ public interface GameService {
 
     //Gets
     public Game getGame(Integer id);
-    
+
     public boolean isAvailable(Integer id);
 
     public List<Game> getAllGames();
+
+    public List<Game> findGameByName(String name);
 
     public List<Game> getGameByDev(String developerName);
 

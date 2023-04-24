@@ -107,6 +107,23 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
+     * Method retrieves details of all Games that has given name.
+     *
+     * @param name String name to check
+     * @return List of Games
+     */
+    @Override
+    public List<Game> findGameByName(String name) {
+
+        lock.readLock().lock();
+        try {
+            return repository.findAllByName(name);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
      * Method retrieves details of all games from repository.
      *
      * @return List of Games

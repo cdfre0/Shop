@@ -89,7 +89,7 @@ public class GameController {
      * id is an int.
      *
      * @param stringId String should contain number
-     * @return Confirmation of success or error
+     * @return Confirmation of success with Games or error
      */
     @GetMapping("{stringId}")
     public ResponseEntity<Object> getGameById(@PathVariable String stringId) {
@@ -104,9 +104,21 @@ public class GameController {
     }
 
     /**
+     * Method calls gameService to retrieve data of all games of given name.
+     *
+     * @param name String name to check
+     * @return Confirmation of success with List of Games or error
+     */
+    @GetMapping("{name}")
+    public ResponseEntity<Object> getGameByName(@PathVariable String name) {
+        return ResponseHandler.responseBuilder(DATA_COLLECTED,
+                HttpStatus.OK, gameService.findGameByName(name));
+    }
+
+    /**
      * Method calls gameService to retrieve data of all games.
      *
-     * @return Confirmation of success or error
+     * @return Confirmation of success with List of Games or error
      */
     @GetMapping("all")
     public ResponseEntity<Object> getAllGames() {
@@ -122,7 +134,7 @@ public class GameController {
      * developer.
      *
      * @param variable String variable with condition
-     * @return Confirmation of success or error
+     * @return Confirmation of success with List of Games or error
      */
     //I am aware it should be 3 methods.
     @GetMapping("all/{variable}")
