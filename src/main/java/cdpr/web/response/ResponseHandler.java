@@ -1,4 +1,4 @@
-package cdpr.web.responce;
+package cdpr.web.response;
 
 import java.util.HashMap;
 import java.util.Map;

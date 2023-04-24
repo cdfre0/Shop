@@ -1,7 +1,7 @@
 package cdpr.web.controller;
 
 import cdpr.web.resources.Game;
-import cdpr.web.responce.ResponseHandler;
+import cdpr.web.response.ResponseHandler;
 import cdpr.web.service.GameService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
