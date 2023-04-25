@@ -4,14 +4,12 @@ import cdpr.web.resources.Game;
 import java.util.List;
 
 /**
- * Interface of Game Service with all methods such interface should implement.
+ * Interface of Game Service.
  *
  * @author Jan Michalec
  */
 public interface GameService {
 
-    
-    
     //Create
     public String createGame(Game game);
 
@@ -34,9 +32,9 @@ public interface GameService {
     public String buyOneGame(Integer id);
 
     public String restockGame(Integer id, int quantity);
-    
+
     public String addGenreToGame(Integer id, Game.Genre genre);
-    
+
     public String deleteGenreFromGame(Integer id, Game.Genre genre);
 
     public String putGameOnSale(Integer id, double factor);

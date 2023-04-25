@@ -4,22 +4,19 @@ import cdpr.web.exception.GameNotFoundException;
 import cdpr.web.repository.GameRepository;
 import cdpr.web.resources.Game;
 import cdpr.web.service.GameService;
-import cdpr.web.resources.User;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.stereotype.Service;
 
 /**
- * Class implements GAmeSerice interface. Used to communicate with Repository
- * and change it's instances.Supports CRUD methods. Supports multi threading by
- * locks.
+ * Class implements GameSerice interface. Used to communicate with Repository of
+ * Games and change it's instances.Supports CRUD methods. Supports multi
+ * threading by locks.
  *
  * @author Jan Michalec
  */
@@ -54,9 +51,12 @@ public class GameServiceImpl implements GameService {
      * Lock for reading and writing data in database.
      */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    
 
-
+    /**
+     * Populating repository on start.
+     *
+     * @param repository GameRepository, repository this Service will be using
+     */
     public GameServiceImpl(GameRepository repository) {
         this.repository = repository;
         Game newGame = new Game("Heroes of Might & Magic V", "Nival",
@@ -69,13 +69,13 @@ public class GameServiceImpl implements GameService {
                 "CAPCOM", Arrays.asList(Game.Genre.STRATEGY), 120.0, 100);
         createGame(newGame);
     }
-    
+
     //CREATE
     /**
      * Method saves game in repository if it does not exist there.
      *
      * @param game Game to save
-     * @return String information if success or error
+     * @return String information of success or error
      */
     @Override
     public String createGame(Game game) {
@@ -247,7 +247,7 @@ public class GameServiceImpl implements GameService {
      * Method decreases Quantity of Games Quantity, given it's id.
      *
      * @param id Integer id of Game
-     * @return String Confirmation of success or error
+     * @return String confirmation of success or error
      */
     @Override
     public String buyOneGame(Integer id) {
@@ -272,7 +272,7 @@ public class GameServiceImpl implements GameService {
      *
      * @param id Integer id of Game
      * @param quantity int number to add
-     * @return String Confirmation of success or error
+     * @return String confirmation of success or error
      */
     @Override
     public String restockGame(Integer id, int quantity) {
@@ -298,7 +298,7 @@ public class GameServiceImpl implements GameService {
      *
      * @param id Integer id of Game
      * @param factor double factor that multiplies price
-     * @return String Confirmation of success or error
+     * @return String confirmation of success or error
      */
     @Override
     public String putGameOnSale(Integer id, double factor) {
@@ -322,7 +322,7 @@ public class GameServiceImpl implements GameService {
      *
      * @param id Integer id of Game
      * @param genre Genre type
-     * @return String Confirmation of success or error
+     * @return String confirmation of success or error
      */
     @Override
     public String addGenreToGame(Integer id, Game.Genre genre) {
@@ -348,7 +348,7 @@ public class GameServiceImpl implements GameService {
      *
      * @param id Integer id of Game
      * @param genre Genre type
-     * @return String Confirmation of success or error
+     * @return String confirmation of success or error
      */
     @Override
     public String deleteGenreFromGame(Integer id, Game.Genre genre) {
@@ -360,7 +360,7 @@ public class GameServiceImpl implements GameService {
             if (!game.hasGenre(genre)) {
                 return UPDATE_FAIL + ", game does not have such genre.";
             }
-            if(game.getGenres().size() < 2){
+            if (game.getGenres().size() < 2) {
                 return UPDATE_FAIL + ", game needs to have at least 1 genre.";
             }
             game.deleteGenre(genre);
@@ -376,7 +376,7 @@ public class GameServiceImpl implements GameService {
      * Method deletes Game from repository given Game's id.
      *
      * @param id Integer id of Game
-     * @return Confirmation of success or error
+     * @return String confirmation of success or error
      */
     @Override
     public String deleteGame(Integer id) {
@@ -397,7 +397,7 @@ public class GameServiceImpl implements GameService {
      * Method deletes all Games from repository if Game's quantity is equal to
      * 0.
      *
-     * @return String Confirmation of success and amount of deleted Games.
+     * @return String confirmation of success and amount of deleted Games.
      */
     @Override
     public String deleteAllUnstockGames() {

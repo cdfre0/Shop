@@ -5,7 +5,6 @@ import cdpr.web.resources.User;
 import cdpr.web.response.ResponseHandler;
 import cdpr.web.service.GameService;
 import cdpr.web.service.UserService;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Class GameController controls flow of calls between http calls and server.
- * Checks if calls are correctly build. Makes calls to Service to retrieve data
- * and send them in ResponseEntity.
+ * Checks if calls are correctly build. Checks if user calling method have
+ * appropriate permissions. Makes calls to Service to retrieve data and send
+ * them in ResponseEntity.
  *
  * @author Jan Michalec
  */
@@ -41,31 +41,81 @@ public class GameController {
      * Final String to indicate call successfully reached service.
      */
     private static final String CALL_REACHED = "Call reached server";
-
-    private static final String EMPTY_SET = "Retured Collection is empty";
+    /**
+     * Final String to indicate returned collection is empty.
+     */
+    private static final String EMPTY_COLLECTION = "Retured Collection is empty";
 
     /**
-     * Game service instance to communicate with repository.
+     * Final String to indicate user is already logged.
+     */
+    private static final String LOGGED_IN = "You are already logged in";
+    /**
+     * Final String to indicate user is not yet logged in.
+     */
+    private static final String NOT_LOGGED_IN = "You are not logged in";
+    /**
+     * Final String to indicate used does not have permissions.
+     */
+    private static final String NOT_ENOGUHT_PERMISSION
+            = "You do not have enought permissions to make this call";
+    /**
+     * Game service instance to communicate with repository of games.
      */
     private final GameService gameService;
+    /**
+     * User service instance to communicate with repository of users.
+     */
     private final UserService userService;
-
+    /**
+     * Current profile of user using Controller.
+     */
     private User currentUser = null;
 
     /**
-     * Constructor initiates gameService and put some values in repository.
+     * Constructor initiates Game Service and User Service.
      *
-     * @param gameService GameService to communicate
+     * @param gameService GameService to communicate with
+     * @param userService UserService to communicate with
      */
     public GameController(GameService gameService, UserService userService) {
         this.gameService = gameService;
         this.userService = userService;
     }
 
+    ////////////////////USER CALLS//////////////////////////////////////////////
+    //CREATE
+    /**
+     * Method calls userService to put User in repository, if data is input
+     * correctly and no user is logged in.
+     *
+     * @param newUser User instance of user
+     * @return Confirmation of success or error
+     */
+    @PostMapping("create")
+    public ResponseEntity<Object> createUser(@RequestBody User newUser) {
+        if (currentUser != null) {
+            return ResponseHandler.responseBuilder(LOGGED_IN,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        if (newUser.getLogin() == null || newUser.getPassword() == null) {
+            return ResponseHandler.responseBuilder("Wrong format of user",
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
+        }
+        return ResponseHandler.responseBuilder(CALL_REACHED,
+                HttpStatus.CREATED, userService.addUser(newUser));
+    }
+
+    /**
+     * Method sets current user to give, if exist in userService.
+     *
+     * @param newUser User instance of user
+     * @return Confirmation of success or error
+     */
     @PostMapping("login")
     public ResponseEntity<Object> logIn(@RequestBody User newUser) {
         if (currentUser != null) {
-            return ResponseHandler.responseBuilder("You are already logged in",
+            return ResponseHandler.responseBuilder(LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (newUser.getLogin() == null || newUser.getPassword() == null) {
@@ -83,10 +133,15 @@ public class GameController {
 
     }
 
-    @GetMapping("logout")
+    /**
+     * Method sets current user to null if it exist.
+     *
+     * @return Confirmation of success or error
+     */
+    @PostMapping("logout")
     public ResponseEntity<Object> logOut() {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         currentUser = null;
@@ -94,37 +149,33 @@ public class GameController {
                 HttpStatus.OK, null);
     }
 
-    @PostMapping("create")
-    public ResponseEntity<Object> createUser(@RequestBody User newUser) {
-        if (currentUser != null) {
-            return ResponseHandler.responseBuilder("You are already logged in",
-                    HttpStatus.NOT_ACCEPTABLE, null);
-        }
-        if (newUser.getLogin() == null || newUser.getPassword() == null) {
-            return ResponseHandler.responseBuilder("Wrong format of user",
-                    HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
-        }
-        return ResponseHandler.responseBuilder(CALL_REACHED,
-                HttpStatus.CREATED,
-                userService.addUser(newUser));
-    }
-
+    //GET
+    /**
+     * Method calls userService to retrieve login and permissions of all users/
+     *
+     * @return Confirmation of success with List of Users data or error
+     */
     @GetMapping("getUsers")
     public ResponseEntity<Object> getAllUsers() {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         return ResponseHandler.responseBuilder(CALL_REACHED,
-                HttpStatus.OK,
-                userService.getUsers());
+                HttpStatus.OK, userService.getUsers());
     }
 
+    //UPDATE
+    /**
+     * Method calls userService to change permission of user to admin's.
+     *
+     * @param login String login of User's profile to change it's permissions.
+     * @return Confirmation of success or error
+     */
     @PutMapping("promote")
     public ResponseEntity<Object> promoteUser(@RequestParam(name = "login") String login) {
         if (currentUser == null) {
@@ -133,28 +184,34 @@ public class GameController {
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         return ResponseHandler.responseBuilder(CALL_REACHED, HttpStatus.OK,
                 userService.promoteUser(login));
     }
 
+    //DELETE
+    /**
+     * Method calls userSerivce to delete user by it's login.
+     *
+     * @param login String user's login to delete
+     * @return Confirmation of success or error
+     */
     @DeleteMapping("delete")
     public ResponseEntity<Object> deleteUser(@RequestParam(name = "login") String login) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         return ResponseHandler.responseBuilder(CALL_REACHED, HttpStatus.OK,
                 userService.deleteUser(login));
     }
 
+    //////////////////////////GAME CALLS////////////////////////////////////////
     //CREATE
     /**
      * Method calls gameService to put Game in repository, if data is input
@@ -166,13 +223,12 @@ public class GameController {
     @PostMapping("admin")
     public ResponseEntity<Object> createGame(@RequestBody Game newGame) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         if (newGame.getName() == null || newGame.getDeveloper() == null
                 || newGame.getGenres() == null || newGame.getPrice() == 0.0) {
@@ -217,7 +273,7 @@ public class GameController {
     ) {
         List<Game> list = gameService.findGameByName(name);
         if (list.isEmpty()) {
-            return ResponseHandler.responseBuilder(EMPTY_SET,
+            return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
                     HttpStatus.BAD_REQUEST, null);
         }
         return ResponseHandler.responseBuilder(CALL_REACHED,
@@ -233,7 +289,7 @@ public class GameController {
     public ResponseEntity<Object> getAllGames() {
         List<Game> list = gameService.getAllGames();
         if (list.isEmpty()) {
-            return ResponseHandler.responseBuilder(EMPTY_SET,
+            return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
                     HttpStatus.BAD_REQUEST, null);
         }
         return ResponseHandler.responseBuilder(CALL_REACHED,
@@ -259,7 +315,7 @@ public class GameController {
             int price = Integer.parseInt(variable);
             list = gameService.showStockLessThan(price);
             if (list.isEmpty()) {
-                return ResponseHandler.responseBuilder(EMPTY_SET,
+                return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
                         HttpStatus.BAD_REQUEST, null);
             }
             return ResponseHandler.responseBuilder(CALL_REACHED,
@@ -269,7 +325,7 @@ public class GameController {
                 Game.Genre genre = Game.Genre.valueOf(variable);
                 list = gameService.getGameByGenre(genre);
                 if (list.isEmpty()) {
-                    return ResponseHandler.responseBuilder(EMPTY_SET,
+                    return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
                             HttpStatus.BAD_REQUEST, null);
                 }
                 return ResponseHandler.responseBuilder(CALL_REACHED,
@@ -277,7 +333,7 @@ public class GameController {
             } catch (IllegalArgumentException ee) {
                 list = gameService.getGameByDev(variable);
                 if (list.isEmpty()) {
-                    return ResponseHandler.responseBuilder(EMPTY_SET,
+                    return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
                             HttpStatus.BAD_REQUEST, null);
                 }
                 return ResponseHandler.responseBuilder(CALL_REACHED,
@@ -317,7 +373,7 @@ public class GameController {
     public ResponseEntity<Object> buyOneGame(@PathVariable String stringId
     ) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         try {
@@ -341,13 +397,12 @@ public class GameController {
     public ResponseEntity<Object> restockGame(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "quantity") String stringQuantity) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         try {
             Integer id = Integer.parseInt(stringId);
@@ -372,13 +427,12 @@ public class GameController {
     public ResponseEntity<Object> putOnSale(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "factor") String stringFactor) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         Integer id;
         try {
@@ -405,13 +459,12 @@ public class GameController {
     public ResponseEntity<Object> addGenreToGame(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "genre") String stringGenre) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         Integer id;
         try {
@@ -443,13 +496,12 @@ public class GameController {
     public ResponseEntity<Object> deleteGenreFromGame(@RequestParam(name = "id") String stringId,
             @RequestParam(name = "genre") String stringGenre) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         Integer id;
         try {
@@ -479,13 +531,12 @@ public class GameController {
     @DeleteMapping("admin/{stringId}")
     public ResponseEntity<Object> deleteGame(@PathVariable String stringId) {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         try {
             Integer id = Integer.parseInt(stringId);
@@ -505,13 +556,12 @@ public class GameController {
     @DeleteMapping("admin/clean")
     public ResponseEntity<Object> deleteUnstocked() {
         if (currentUser == null) {
-            return ResponseHandler.responseBuilder("You are not logged in",
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
         if (!currentUser.getPermission()) {
             return ResponseHandler.responseBuilder(
-                    "You do not have permissions to make this call",
-                    HttpStatus.UNAUTHORIZED, null);
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         return ResponseHandler.responseBuilder(CALL_REACHED,
                 HttpStatus.OK, gameService.deleteAllUnstockGames());

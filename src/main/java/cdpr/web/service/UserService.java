@@ -4,6 +4,7 @@ import cdpr.web.resources.User;
 import java.util.List;
 
 /**
+ * Interface of User Service.
  *
  * @author Jan Michalec
  */
@@ -16,7 +17,6 @@ public interface UserService {
     public String promoteUser(String login);
 
     public String deleteUser(String login);
-    
- //   public String updatePassword(String login, String oldPassword, String newPassword);
+
     public User verifyUser(User newUser);
 }
