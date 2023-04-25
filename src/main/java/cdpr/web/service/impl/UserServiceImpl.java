@@ -4,14 +4,13 @@
  */
 package cdpr.web.service.impl;
 
-import cdpr.web.repository.GameRepository;
+import cdpr.web.exception.GameNotFoundException;
 import cdpr.web.repository.UserRepository;
 import cdpr.web.resources.User;
 import cdpr.web.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,8 +27,10 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(UserRepository repository) {
         this.repository = repository;
-        User user = new User("admin", "admin1", true);
+        User user = new User("admin", "admin1");
+        user.setPermission(true);
         repository.save(user);
+        user.setPermission(false);
         user = new User("login", "password");
         repository.save(user);
     }
@@ -44,18 +45,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String addUser(String login, String password) {
-        if (repository.existsById(login)) {
+    public String addUser(User newUser) {
+        if (repository.existsById(newUser.getLogin())) {
             return "Such login already exist";
         }
-        repository.save(new User(login, password));
+        newUser.setPermission(false);
+        repository.save(newUser);
         return "User created";
     }
 
     @Override
     public String promoteUser(String login) {
         Optional<User> optUser = repository.findById(login);
-        if(optUser.isPresent()) {
+        if (optUser.isPresent()) {
+            if(optUser.get().getPermission()){
+                return "User is already an admin";
+            }
             optUser.get().setPermission(true);
             repository.save(optUser.get());
             return "Promotion successed";
@@ -65,25 +70,41 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String deleteUser(String login) {
-        if(repository.existsById(login)) {
-            repository.deleteById(login);
-            return "Deletion Successed";
-        }
-        return "Such user does not exist";
+        checkLoginExisting(login);
+        repository.deleteById(login);
+        return "Deletion Successed";
+
     }
 
+//    @Override
+//    public String updatePassword(String login, String oldPassword, String newPassword) {
+//        checkLoginExisting(login);
+//        User user = repository.findById(login).get();
+//
+//        if (user.getPassword().equals(oldPassword)) {
+//            user.setPassword(newPassword);
+//            repository.save(user);
+//            return "Password updated";
+//        }
+//        return "Old password is incorrect";
+//    }
+
     @Override
-    public String updatePassword(String login, String oldPassword, String newPassword) {
-        Optional<User> optUser = repository.findById(login);
-        if(optUser.isPresent()) {
-            if(optUser.get().getPassword().equals(oldPassword)){
-                optUser.get().setPassword(newPassword);
-                repository.save(optUser.get());
-                return "Password updated";
-            }
-            return "Old password is incorrect";
+    public User verifyUser(User newUser) {
+        checkLoginExisting(newUser.getLogin());
+        User user = repository.findById(newUser.getLogin()).get();
+        if (user.getPassword().
+                equals(newUser.getPassword())) {
+            return user;
         }
-        return "Such user does not exist";
+        return null;
+    }
+
+    private void checkLoginExisting(String login) {
+        if (!repository.existsById(login)) {
+            throw new GameNotFoundException(
+                    "Game with such ID does not exist in Repository");
+        }
     }
 
 }

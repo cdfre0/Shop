@@ -14,10 +14,12 @@ import java.util.Objects;
 public class User {
 
     @Id
-    private final String login;
+    private String login;
     private String password;
     private Boolean permission;
-
+    
+    public User() {  
+    }
     public User(String login) {
         this.login = login;
     }
@@ -25,17 +27,10 @@ public class User {
     public User(String login, String password) {
         this.login = login;
         this.password = password;
-        permission = false;
-    }
-
-    public User(String login, String password, Boolean permission) {
-        this.login = login;
-        this.password = password;
-        this.permission = permission;
     }
 
     public String getLogin() {
-        return password;
+        return login;
     }
 
     public String getPassword() {
@@ -56,20 +51,5 @@ public class User {
 
     public String getLoginAndPerrmision() {
         return login + ", " + permission;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final User other = (User) obj;
-        return Objects.equals(this.login, other.login);
     }
 }

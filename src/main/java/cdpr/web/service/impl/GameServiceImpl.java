@@ -6,6 +6,7 @@ import cdpr.web.resources.Game;
 import cdpr.web.service.GameService;
 import cdpr.web.resources.User;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,11 +26,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class GameServiceImpl implements GameService {
 
-    /**
-     * Final String for error of not existing ID in Repository.
-     */
-    private final static String ID_NOT_EXIST
-            = "Game with such ID does not exist in Repository";
     /**
      * Final String to indicate Update success.
      */
@@ -63,6 +59,15 @@ public class GameServiceImpl implements GameService {
 
     public GameServiceImpl(GameRepository repository) {
         this.repository = repository;
+        Game newGame = new Game("Heroes of Might & Magic V", "Nival",
+                Arrays.asList(Game.Genre.STRATEGY), 100.0, 3);
+        createGame(newGame);
+        newGame = new Game("Resident Evil 4", "CAPCOM",
+                Arrays.asList(Game.Genre.HORROR, Game.Genre.ACTION), 200.0, 5);
+        createGame(newGame);
+        newGame = new Game("The Great Ace Attorney Chronicles ",
+                "CAPCOM", Arrays.asList(Game.Genre.STRATEGY), 120.0, 100);
+        createGame(newGame);
     }
     
     //CREATE
@@ -421,7 +426,8 @@ public class GameServiceImpl implements GameService {
      */
     private void checkIdExisting(Integer id) {
         if (!repository.existsById(id)) {
-            throw new GameNotFoundException(ID_NOT_EXIST);
+            throw new GameNotFoundException(
+                    "Game with such ID does not exist in Repository");
         }
     }
 
