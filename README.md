@@ -72,24 +72,25 @@ Step 3: Run class src\main\java\cdpr\web\OnlineShopApplication.java
 Step 4: Communicate with server Using those calls:
     - localhost:8080/
 
-        - no user
+        - Only no user
             ##POST
                 * create - creates instance of user in database.
                     User is passed in body request of call.
                 * login - logs onto user's profile.
                     User is passed in body request of call.
-        - user
-            ##POST
-                * logout - logs out from profile.
+        - no user
             ##GET
                 * byId/{id} - gets data of game by it's id.
                 * {name} - gets datas of games of certain name.
+                * avalaible/{id} - checks if game of this id has any copy left to buy
                 * all - gets data of all games.
                 * all/{variable} - gets data of all games:
                                     - if variable is a number, gets all games that cost is lower that number
                                     - if variable is a type of genre, gets all games that are of that type
                                     - else, gets all games that are of this developer
-                * avalaible/{id} - checks if game of this id has any copy left to buy
+        - user
+            ##POST
+                * logout - logs out from profile.
             ##PUT
                 * {id} - buys game of this id if avaliable in stocks
         - admin
@@ -109,7 +110,8 @@ Step 4: Communicate with server Using those calls:
                 * admin/{id} - deletes game from shop by it's id.
                 * admin/clean - deletes all games from shop that stock number is equal to 0.
 
-            Note: admin can also use user calls 
+            Note: admin can use user calls. 
+                  User can use no user calls.
 
 ## Contributor
 * [Jan Michalec](https://github.com/cdfre0)
