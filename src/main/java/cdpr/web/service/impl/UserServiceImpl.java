@@ -7,6 +7,8 @@ import cdpr.web.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +24,10 @@ public class UserServiceImpl implements UserService {
      * Repository for saving data.
      */
     UserRepository repository;
+    /**
+     * Lock for reading and writing data in database.
+     */
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * Populating repository on start.
@@ -36,6 +42,7 @@ public class UserServiceImpl implements UserService {
         user.setPermission(false);
         user = new User("login", "password");
         repository.save(user);
+
     }
 
     //CREATE
@@ -47,12 +54,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String addUser(User newUser) {
-        if (repository.existsById(newUser.getLogin())) {
-            return "Such login already exist";
+        lock.writeLock().lock();
+        try {
+            if (repository.existsById(newUser.getLogin())) {
+                return "Such login already exist";
+            }
+            newUser.setPermission(false);
+            repository.save(newUser);
+            return "User created";
+        } finally {
+            lock.writeLock().unlock();
         }
-        newUser.setPermission(false);
-        repository.save(newUser);
-        return "User created";
     }
 
     //GET
@@ -63,11 +75,16 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<String> getUsers() {
-        List<String> loginWithPermission = new ArrayList<>();
-        for (User user : repository.findAll()) {
-            loginWithPermission.add(user.getLoginAndPerrmision());
+        lock.readLock().lock();
+        try {
+            List<String> loginWithPermission = new ArrayList<>();
+            for (User user : repository.findAll()) {
+                loginWithPermission.add(user.getLoginAndPerrmision());
+            }
+            return loginWithPermission;
+        } finally {
+            lock.readLock().unlock();
         }
-        return loginWithPermission;
     }
 
     /**
@@ -78,13 +95,18 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User verifyUser(User newUser) {
-        checkLoginExisting(newUser.getLogin());
-        User user = repository.findById(newUser.getLogin()).get();
-        if (user.getPassword().
-                equals(newUser.getPassword())) {
-            return user;
+        lock.readLock().lock();
+        try {
+            checkLoginExisting(newUser.getLogin());
+            User user = repository.findById(newUser.getLogin()).get();
+            if (user.getPassword().
+                    equals(newUser.getPassword())) {
+                return user;
+            }
+            return null;
+        } finally {
+            lock.readLock().unlock();
         }
-        return null;
     }
 
     //UPDATE
@@ -96,16 +118,22 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String promoteUser(String login) {
-        Optional<User> optUser = repository.findById(login);
-        if (optUser.isPresent()) {
-            if (optUser.get().getPermission()) {
-                return "User is already an admin";
+        lock.writeLock().lock();
+        try {
+            Optional<User> optUser = repository.findById(login);
+            if (optUser.isPresent()) {
+                if (optUser.get().getPermission()) {
+                    return "User is already an admin";
+                }
+                optUser.get().setPermission(true);
+                repository.save(optUser.get());
+                return "Promotion successed";
             }
-            optUser.get().setPermission(true);
-            repository.save(optUser.get());
-            return "Promotion successed";
+            return "Such user does not exist";
+        } finally {
+            lock.writeLock().unlock();
         }
-        return "Such user does not exist";
+
     }
 
     //DELETE
@@ -117,10 +145,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String deleteUser(String login) {
-        checkLoginExisting(login);
-        repository.deleteById(login);
-        return "Deletion Successed";
-
+        lock.writeLock().lock();
+        try {
+            checkLoginExisting(login);
+            repository.deleteById(login);
+            return "Deletion Successed";
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
