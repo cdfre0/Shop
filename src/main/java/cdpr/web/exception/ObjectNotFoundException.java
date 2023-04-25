@@ -1,7 +1,7 @@
 package cdpr.web.exception;
 
 /**
- * Class GameNotFoundException extends RuntimeException and uses its
+ * Class ObjectNotFoundException extends RuntimeException and uses its
  * constructors.
  *
  * @author Jan Michalec

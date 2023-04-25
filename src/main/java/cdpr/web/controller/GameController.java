@@ -155,7 +155,7 @@ public class GameController {
      *
      * @return Confirmation of success with List of Users data or error
      */
-    @GetMapping("getUsers")
+    @GetMapping("admin/getUsers")
     public ResponseEntity<Object> getAllUsers() {
         if (currentUser == null) {
             return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
@@ -176,7 +176,7 @@ public class GameController {
      * @param login String login of User's profile to change it's permissions.
      * @return Confirmation of success or error
      */
-    @PutMapping("promote")
+    @PutMapping("admin/promote")
     public ResponseEntity<Object> promoteUser(@RequestParam(name = "login") String login) {
         if (currentUser == null) {
             return ResponseHandler.responseBuilder("You are not logged in",
@@ -197,7 +197,7 @@ public class GameController {
      * @param login String user's login to delete
      * @return Confirmation of success or error
      */
-    @DeleteMapping("delete")
+    @DeleteMapping("admin/delete")
     public ResponseEntity<Object> deleteUser(@RequestParam(name = "login") String login) {
         if (currentUser == null) {
             return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
