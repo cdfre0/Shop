@@ -6,13 +6,13 @@ package cdpr.web.exception;
  *
  * @author Jan Michalec
  */
-public class GameNotFoundException extends RuntimeException {
+public class ObjectNotFoundException extends RuntimeException {
 
-    public GameNotFoundException(String message) {
+    public ObjectNotFoundException(String message) {
         super(message);
     }
 
-    public GameNotFoundException(String message, Throwable cause) {
+    public ObjectNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 

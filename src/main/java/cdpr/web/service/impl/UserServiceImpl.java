@@ -1,6 +1,6 @@
 package cdpr.web.service.impl;
 
-import cdpr.web.exception.GameNotFoundException;
+import cdpr.web.exception.ObjectNotFoundException;
 import cdpr.web.repository.UserRepository;
 import cdpr.web.resources.User;
 import cdpr.web.service.UserService;
@@ -164,8 +164,8 @@ public class UserServiceImpl implements UserService {
     private void checkLoginExisting(String login) {
         if (!repository.existsById(login)) {
             //TODO change
-            throw new GameNotFoundException(
-                    "Game with such ID does not exist in Repository");
+            throw new ObjectNotFoundException(
+                    "User with such ID does not exist in Repository");
         }
     }
 

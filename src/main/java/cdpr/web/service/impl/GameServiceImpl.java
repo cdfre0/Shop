@@ -1,6 +1,6 @@
 package cdpr.web.service.impl;
 
-import cdpr.web.exception.GameNotFoundException;
+import cdpr.web.exception.ObjectNotFoundException;
 import cdpr.web.repository.GameRepository;
 import cdpr.web.resources.Game;
 import cdpr.web.service.GameService;
@@ -426,7 +426,7 @@ public class GameServiceImpl implements GameService {
      */
     private void checkIdExisting(Integer id) {
         if (!repository.existsById(id)) {
-            throw new GameNotFoundException(
+            throw new ObjectNotFoundException(
                     "Game with such ID does not exist in Repository");
         }
     }

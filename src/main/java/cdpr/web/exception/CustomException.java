@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
  *
  * @author Jan Michalec
  */
-public class GameException {
+public class CustomException {
 
     /**
      * String message of Exception.
@@ -19,7 +19,7 @@ public class GameException {
      */
     private final HttpStatus httpStatus;
 
-    public GameException(HttpStatus httpStatus, String message,
+    public CustomException(HttpStatus httpStatus, String message,
             Throwable throwable) {
         this.message = message;
         this.httpStatus = httpStatus;
