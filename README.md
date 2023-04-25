@@ -1,8 +1,7 @@
 ## Overview
-This project is an implementation of Online shop selling digital games, in which user can look up avaliable games, search for games of favourite developer, or even his favourite genre.
-Program implements concept of accounts which one can create, delete and admin accounts can promote normal account to admins.
-User can check if shop has it in stock, and buy it.
-
+This project is an implementation of Online shop selling digital games, in which user can look up avaliable games, search for games of favourite developer or even your favourite genre.
+Program uses accounts of user and admin. Admin can manage database of users and promote users 
+User can search for games, check if shop has it in stock, and buy it.
 By special calls admin can update price of game, quantity in stock, add new games to repository either with or without existing stocks, and delete game by id, or all of them that do not have avaliable copy.
 
 ## DATA
@@ -62,7 +61,7 @@ How to run OnlineShop
 
 >>>Run through NetBeans
 
-Step 1: Run MySQL database on localhost 3306, with username: user, password: password and not using SSL,
+Step 1: Run MySQL database on localhost 3306, with username: user, password: password, not using SSL,
             or change details in src\main\resources\application.yml
 
 Step 2: Build project
