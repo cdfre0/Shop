@@ -1,10 +1,14 @@
 ## Overview
 This project is an implementation of Online shop selling digital games, in which user can look up avaliable games, search for games of favourite developer, or even his favourite genre.
+Program implements concept of accounts which one can create, delete and admin accounts can promote normal account to admins.
 User can check if shop has it in stock, and buy it.
 
 By special calls admin can update price of game, quantity in stock, add new games to repository either with or without existing stocks, and delete game by id, or all of them that do not have avaliable copy.
 
 
+
+
+## DATA
 Types of Genre avaliable:
 1. SHOOTER
 2. RPG
@@ -29,6 +33,12 @@ Game Structure in JSON
         "ACTION"
     ]
 }
+User Sructire in JSON
+{
+    "login": "login",
+    "password": "password",
+    "permission": true
+}
 Game structure that can be passed in POST call:
 1. {
     "name": "Resident Evil 4",
@@ -48,7 +58,11 @@ Game structure that can be passed in POST call:
     "price": 55.0,
     "quantity": 12
 }
-
+User structure that can be passed in POST call:
+{
+    "login": "login",
+    "password": "password123"
+}
 ## How to run
 How to run OnlineShop
 
@@ -88,6 +102,17 @@ Step 4: Communicate with server Using those calls:
                 * admin/{id} - deletes game from shop by it's id
                 * admin/clean - deletes all games from shop that stock number is equal to 0
 
+            Note: admin can also use user calls 
 
+
+POST
+create
+login
+logout
+GET
+admin/getUsers
+PUT
+admin/promote
+admin/delete
 ## Contributor
 * [Jan Michalec](https://github.com/cdfre0)
