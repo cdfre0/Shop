@@ -5,9 +5,6 @@ User can check if shop has it in stock, and buy it.
 
 By special calls admin can update price of game, quantity in stock, add new games to repository either with or without existing stocks, and delete game by id, or all of them that do not have avaliable copy.
 
-
-
-
 ## DATA
 Types of Genre avaliable:
 1. SHOOTER
@@ -34,35 +31,32 @@ Game Structure in JSON
     ]
 }
 User Sructire in JSON
-{
-    "login": "login",
+{   "login": "login",
     "password": "password",
-    "permission": true
-}
+    "permission": true  }
+
+
 Game structure that can be passed in POST call:
-1. {
-    "name": "Resident Evil 4",
+1. 
+{  "name": "Resident Evil 4",
     "developer": "CAPCOM",
-    "genre": [
-        "HORROR"
-       ],
-    "price": 200.0,
-}
-2.  {
-    "name": "Resident Evil 4",
+    "genre": 
+    [   "HORROR"  ],
+    "price": 200.0,  }
+
+2.  
+{   "name": "Resident Evil 4",
     "developer": "CAPCOM",
-    "genre": [
-        "HORROR",
-        "ACTION"
-    ],
+    "genre": 
+    [   "HORROR",
+        "ACTION"  ],
     "price": 55.0,
-    "quantity": 12
-}
+    "quantity": 12  }
+
 User structure that can be passed in POST call:
-{
-    "login": "login",
-    "password": "password123"
-}
+{  "login": "login",
+    "password": "password123"  }
+
 ## How to run
 How to run OnlineShop
 
@@ -77,7 +71,16 @@ Step 3: Run class src\main\java\cdpr\web\OnlineShopApplication.java
 
 Step 4: Communicate with server Using those calls:
     - localhost:8080/
+
+        - no user
+            ##POST
+                * create - creates instance of user in database.
+                    User is passed in body request of call.
+                * login - logs onto user's profile.
+                    User is passed in body request of call.
         - user
+            ##POST
+                * logout - logs out from profile.
             ##GET
                 * byId/{id} - gets data of game by it's id.
                 * {name} - gets datas of games of certain name.
@@ -93,26 +96,20 @@ Step 4: Communicate with server Using those calls:
             ##POST
                 * admin - creates instance of game in stock.
                     Game is passed in body request of call. If quantity is not passed in call, it will be set to 0. 
+            ##GET
+                * admin/getUsers - gets logins and permissions of all users.
             ##PUT
-                * admin?id={id}&quantity={q} - supplies stocks of game of this id by "q"
-                * admin/sale?id={id}&factor={f} - Mutiplies price of game of this id by "f"; f should be double
-                * admin/addGenre?id={id}&genre={genre} - Adds new Genre to game's data
-                * admin/deleteGenre?id={id}&genre={genre} - Deletes Genre type from game's data
+                * admin/promote?login={name} - promotes passed login of user to admin.
+                * admin/delete?login={name} = deletes passed login of user from database.
+                * admin?id={id}&quantity={q} - supplies stocks of game of this id by "q".
+                * admin/sale?id={id}&factor={f} - Mutiplies price of game of this id by "f"; f should be double.
+                * admin/addGenre?id={id}&genre={genre} - Adds new Genre to game's data.
+                * admin/deleteGenre?id={id}&genre={genre} - Deletes Genre type from game's data.
             ##DELETE
-                * admin/{id} - deletes game from shop by it's id
-                * admin/clean - deletes all games from shop that stock number is equal to 0
+                * admin/{id} - deletes game from shop by it's id.
+                * admin/clean - deletes all games from shop that stock number is equal to 0.
 
             Note: admin can also use user calls 
 
-
-POST
-create
-login
-logout
-GET
-admin/getUsers
-PUT
-admin/promote
-admin/delete
 ## Contributor
 * [Jan Michalec](https://github.com/cdfre0)
