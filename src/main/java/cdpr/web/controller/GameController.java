@@ -3,6 +3,7 @@ package cdpr.web.controller;
 import cdpr.web.resources.Game;
 import cdpr.web.response.ResponseHandler;
 import cdpr.web.service.GameService;
+import cdpr.web.service.UserService;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -46,15 +47,18 @@ public class GameController {
      * Game service instance to communicate with repository.
      */
     private final GameService gameService;
-
+    private final UserService userService;
+    
+    private User currentUser;
     /**
      * Constructor initiates gameService and put some values in repository.
      *
      * @param gameService GameService to communicate
      */
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, UserService userService) {
         this.gameService = gameService;
-
+        this.userService = userService;
+        
         Game newGame = new Game("Heroes of Might & Magic V", "Nival",
                 Arrays.asList(Game.Genre.STRATEGY), 100.0, 3);
         gameService.createGame(newGame);

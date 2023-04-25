@@ -4,10 +4,13 @@ import cdpr.web.exception.GameNotFoundException;
 import cdpr.web.repository.GameRepository;
 import cdpr.web.resources.Game;
 import cdpr.web.service.GameService;
+import cdpr.web.resources.User;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.stereotype.Service;
@@ -55,11 +58,13 @@ public class GameServiceImpl implements GameService {
      * Lock for reading and writing data in database.
      */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    
+
 
     public GameServiceImpl(GameRepository repository) {
         this.repository = repository;
     }
-
+    
     //CREATE
     /**
      * Method saves game in repository if it does not exist there.
