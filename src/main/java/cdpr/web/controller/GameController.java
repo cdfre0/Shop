@@ -484,8 +484,14 @@ public class GameController {
             response += gameService.changeDeveloper(id, developer);
         }
         if (stringFactor != null) {
-            double factor = Double.parseDouble(stringFactor);
-            response += gameService.putGameOnSale(id, factor);
+            try {
+                double factor = Double.parseDouble(stringFactor);
+                response += gameService.putGameOnSale(id, factor);
+            } catch (NumberFormatException e) {
+                return ResponseHandler.responseBuilder("Cannot parse String to double",
+                        HttpStatus.NOT_ACCEPTABLE, null);
+            }
+
         }
 
         return ResponseHandler.responseBuilder(CALL_REACHED,
