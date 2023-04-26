@@ -240,6 +240,34 @@ public class GameController {
 
     }
 
+    @PostMapping("admin/changeGame/{stringId}")
+    public ResponseEntity<Object> changeGame(@PathVariable String stringId,
+            @RequestBody Game newGame) {
+        if (currentUser == null) {
+            return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        if (!currentUser.getPermission()) {
+            return ResponseHandler.responseBuilder(
+                    NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
+        }
+        if (newGame.getName() == null || newGame.getDeveloper() == null
+                || newGame.getGenres() == null || newGame.getPrice() == 0.0) {
+            return ResponseHandler.responseBuilder("Wrong format of game",
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE, null);
+        }
+        Integer id;
+        try {
+            id = Integer.parseInt(stringId);
+        } catch (NumberFormatException e) {
+            return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
+                    HttpStatus.NOT_ACCEPTABLE, null);
+        }
+        return ResponseHandler.responseBuilder("Game changed",
+                HttpStatus.OK, gameService.rewriteGame(id, newGame));
+
+    }
+
     //GETS
     /**
      * Method calls gameService to retrieve data of game of given id. Checks if
@@ -249,11 +277,12 @@ public class GameController {
      * @return Confirmation of success with Games or error
      */
     @GetMapping("byId/{stringId}")
+
     public ResponseEntity<Object> getGameById(@PathVariable String stringId
     ) {
 
         try {
-            int id = Integer.parseInt(stringId);
+            Integer id = Integer.parseInt(stringId);
             return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, gameService.getGame(id));
         } catch (NumberFormatException e) {
@@ -416,16 +445,22 @@ public class GameController {
     }
 
     /**
-     * Method calls gameService to change price of game multiplying it's price
-     * by a factor. Game fetched by it's id.
+     * Method calls gameService to change price,name or developer name of game.
+     * Price is change by multiplying it's price by a factor. Game fetched by
+     * it's id. Not all needs to be change in the same time
      *
      * @param stringId String should contain number
+     * @param name String new name
+     * @param developer String new developer name
      * @param stringFactor String should contain double
      * @return Confirmation of success or error
      */
-    @PutMapping("admin/sale")
-    public ResponseEntity<Object> putOnSale(@RequestParam(name = "id") String stringId,
-            @RequestParam(name = "factor") String stringFactor) {
+    @PutMapping("admin/change")
+    public ResponseEntity<Object> changeVariable(@RequestParam(name = "id") String stringId,
+            @RequestParam(required = false, name = "name") String name,
+            @RequestParam(required = false, name = "developer") String developer,
+            @RequestParam(required = false, name = "factor") String stringFactor) {
+
         if (currentUser == null) {
             return ResponseHandler.responseBuilder(NOT_LOGGED_IN,
                     HttpStatus.NOT_ACCEPTABLE, null);
@@ -435,16 +470,26 @@ public class GameController {
                     NOT_ENOGUHT_PERMISSION, HttpStatus.UNAUTHORIZED, null);
         }
         Integer id;
+        String response = "";
         try {
             id = Integer.parseInt(stringId);
         } catch (NumberFormatException e) {
             return ResponseHandler.responseBuilder(STRING_TO_INT_ERROR,
                     HttpStatus.NOT_ACCEPTABLE, null);
         }
-        double factor = Double.parseDouble(stringFactor);
-        return ResponseHandler.responseBuilder(CALL_REACHED,
-                HttpStatus.OK, gameService.putGameOnSale(id, factor));
+        if (name != null) {
+            response += gameService.changeName(id, name);
+        }
+        if (developer != null) {
+            response += gameService.changeDeveloper(id, developer);
+        }
+        if (stringFactor != null) {
+            double factor = Double.parseDouble(stringFactor);
+            response += gameService.putGameOnSale(id, factor);
+        }
 
+        return ResponseHandler.responseBuilder(CALL_REACHED,
+                HttpStatus.OK, "Update OK");
     }
 
     /**

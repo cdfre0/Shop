@@ -33,6 +33,12 @@ public interface GameService {
 
     public String restockGame(Integer id, int quantity);
 
+    public String changeName(Integer id, String name);
+
+    public String changeDeveloper(Integer id, String name);
+
+    public String rewriteGame(Integer id, Game game);
+
     public String addGenreToGame(Integer id, Game.Genre genre);
 
     public String deleteGenreFromGame(Integer id, Game.Genre genre);

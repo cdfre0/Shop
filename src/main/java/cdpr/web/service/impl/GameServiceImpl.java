@@ -293,6 +293,71 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
+     * Method changes name of Game to new one.
+     *
+     * @param id Integer id of game name to change
+     * @param name String new name
+     * @return String confirmation of success or error
+     */
+    @Override
+    public String changeName(Integer id, String name) {
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            game.setName(name);
+            repository.save(game);
+            return UPDATE_SUCCESS;
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Method changes developer name of Game to new one.
+     *
+     * @param id Integer id of game developer name to change
+     * @param developer String new developer name
+     * @return String confirmation of success or error
+     */
+    @Override
+    public String changeDeveloper(Integer id, String developer) {
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            Game game = repository.findById(id).get();
+            game.setDeveloper(developer);
+            repository.save(game);
+            return UPDATE_SUCCESS;
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Method changes game stored at specific id to new one.
+     *
+     * @param id Integer id of game to change
+     * @param game Game new game
+     * @return String confirmation of success or error
+     */
+    @Override
+    public String rewriteGame(Integer id, Game game) {
+        lock.writeLock().lock();
+        try {
+            checkIdExisting(id);
+            game.setId(id);
+            repository.save(game);
+            return UPDATE_SUCCESS;
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
      * Method changes price of Game given factor to multiply price and game's
      * id.
      *
