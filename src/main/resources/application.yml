@@ -1,8 +1,8 @@
 ## YAML Template.
 spring:
     datasource:
-        url: jdbc:mysql://localhost:3306/myschema?useSSL=false
-        username: user
+        url: jdbc:mysql://localhost:3306/shopschema?useSSL=false
+        username: root
         password: password
 
 

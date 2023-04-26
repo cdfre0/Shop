@@ -65,8 +65,11 @@ How to run OnlineShop
 
 >>>Run through NetBeans
 
-Step 1: Run MySQL database on localhost 3306, with username: user, password: password, not using SSL,
-            or change details in src\main\resources\application.yml
+Step 1: 
+        a)Make connection to local server on ip : 127.0.0.1 port 3306
+        a)Run MySQL database on localhost 3306, with username: "root", password: "password", not using SSL
+        b)Create schema:"shopschema"
+            or change details in src\main\resources\application.yml to what you prefer and adjust changes to MySql database.
 
 Step 2: Build project
 
