@@ -1,23 +1,23 @@
-## Overview
+# Overview
 This project is an implementation of Online shop selling digital games, in which user can look up avaliable games, search for games of favourite developer or even your favourite genre.
 Program uses accounts of user and admin. Admin can manage database of users and promote users 
 User can search for games, check if shop has it in stock, and buy it.
 By special calls admin can update price of game, quantity in stock, add new games to repository either with or without existing stocks, and delete game by id, or all of them that do not have avaliable copy.
-
 ## DATA
-Types of Genre avaliable:
-1. SHOOTER
-2. RPG
-3. PLATFORM
-4. STRATEGY
-5. OPENWORLD
-6. SIMULATION
-7. RTS
-8. PUZZLE
-9. ACTION
-10. HORROR
-
+10 Types of Genre avaliable:
+* SHOOTER
+* RPG
+* PLATFORM
+* STRATEGY
+* OPENWORLD
+* SIMULATION
+* RTS
+* PUZZLE
+* ACTION
+* HORROR
+####
 Game Structure in JSON
+```
 {
     "id": 1,
     "name": "Resident Evil 4",
@@ -27,15 +27,18 @@ Game Structure in JSON
     "genre": [
         "HORROR",
         "ACTION"
-    ]
-}
+    ] }
+```
+
 User Structure in JSON
+```
 {   "login": "login",
     "password": "password",
     "permission": true  }
-
+```
 
 Game structure that can be passed in POST call:
+```
 1. 
 {  "name": "Resident Evil 4",
     "developer": "CAPCOM",
@@ -51,31 +54,40 @@ Game structure that can be passed in POST call:
         "ACTION"  ],
     "price": 55.0,
     "quantity": 12  }
-
+```
 User structure that can be passed in POST call:
+```
 {  "login": "login",
     "password": "password123"  }
+```
+## Installation
+    #DOCKER
+    To run docker, please fetch master branch
+        Step 1: Using Docker pull :
+                docker pull mysql:8.0.33
+                docker pull cdfre/myrep:shop
+        Step 2: Create network:
+                docker network create shop-net
+        Step 3: Create sql container instance on network:
+                   docker run --name shopdb --network shop-net -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=shop-resources -e MYSQL_USER=user -e MYSQL_PASSWORD=password -d mysql:8.0.33
+        Step 4: Create shop container instance on network:
+                   docker run --name shop-container --network shop-net -p 8080:8080 -d cdfre0/myrep:shop
 
-## Prerequisite
-    Java 17
-    MySql
-    
-## How to run
-How to run OnlineShop
+    #COMPILER
+    To run though compiler, pealse fetch compiler branch
+    >>>Run through NetBeans, Java 17 and MySQL
 
->>>Run through NetBeans
+    Step 1: 
+            a)Make connection to local server on ip : 127.0.0.1 port 3306
+            a)Run MySQL database on localhost 3306, with username: "root", password: "password", not using SSL
+            b)Create schema:"shopschema"
+                or change details in src\main\resources\application.yml to what you prefer and adjust changes to MySql database.
 
-Step 1: 
-        a)Make connection to local server on ip : 127.0.0.1 port 3306
-        a)Run MySQL database on localhost 3306, with username: "root", password: "password", not using SSL
-        b)Create schema:"shopschema"
-            or change details in src\main\resources\application.yml to what you prefer and adjust changes to MySql database.
+    Step 2: Build project
 
-Step 2: Build project
+    Step 3: Run class src\main\java\cdpr\web\OnlineShopApplication.java
 
-Step 3: Run class src\main\java\cdpr\web\OnlineShopApplication.java
-
-Step 4: Communicate with server Using those calls:
+## Communicate with server Using those calls:
     - localhost:8080/
 
         - Only no user
@@ -127,9 +139,6 @@ Step 4: Communicate with server Using those calls:
     I covered each edge cases, especially when passing values with http calls. 
     The return message will communicate if update/get/post/delete call was succussed or not. Special case is with finding primary key of data, if it is not found, exception message is returned.
 
-
-
-
 ## Contributor
-* [Jan Michalec](https://github.com/cdfre0)
+* [Jan Michalec Git](https://github.com/cdfre0)
     - if anyone has problem with running, or have questions, I'm always available on WhatsApp +48798354298
