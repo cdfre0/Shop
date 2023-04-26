@@ -144,4 +144,5 @@ User structure that can be passed in POST call:
     Java, REST, JPA, MySQL, Docker, Spring, JSON, YAML, XML
 ## Contributor
 * [Jan Michalec Git](https://github.com/cdfre0)
+* [Jan Michalec Docker](https://hub.docker.com/u/cdfre0)
     - if anyone has problem with running, or have questions, I'm always available on WhatsApp +48798354298
