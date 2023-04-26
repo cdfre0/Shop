@@ -12,7 +12,7 @@ import java.util.List;
  * @author Jan Michalec
  */
 @Entity
-@Table(name = "game_database")
+@Table(name = "game_table")
 public class Game {
 
     /**

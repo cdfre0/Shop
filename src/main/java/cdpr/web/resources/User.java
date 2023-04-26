@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
  * @author Jan Michalec
  */
 @Entity
-@Table(name = "user_database")
+@Table(name = "user_table")
 public class User {
 
     /**
