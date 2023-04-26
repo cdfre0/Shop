@@ -63,9 +63,9 @@ User structure that can be passed in POST call:
 ## Installation
     #DOCKER
     To run docker, please fetch master branch
-        Step 1: Using Docker pull :
+        Step 1: Using Docker pull:
                 docker pull mysql:8.0.33
-                docker pull cdfre/myrep:shop
+                docker pull cdfre0/myrep:shop
         Step 2: Create network:
                 docker network create shop-net
         Step 3: Create sql container instance on network:
