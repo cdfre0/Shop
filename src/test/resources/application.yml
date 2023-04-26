@@ -1,0 +1,22 @@
+## YAML Template.
+spring:
+    datasource:
+        #         database name  
+        url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+        #default user&password for h2db
+        username: sa
+        password: sa 
+        driver-class-name: org.h2.Driver
+        
+    #SQL dialect makes Hibernate generate better SQL
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.H2Dialect
+                
+        #logs will show sql calls
+        show-sql: true
+        
+    #JPA settings
+    #Moment we close application, database will be cleaned
+    jpa.hibernate.ddl-auto: create-drop
