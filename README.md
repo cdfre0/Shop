@@ -70,7 +70,7 @@ User structure that can be passed in POST call:
                 docker network create shop-net
         Step 3: Create sql container instance on network:
                    docker run --name shopdb --network shop-net -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=shop-resources -e MYSQL_USER=user -e MYSQL_PASSWORD=password -d mysql:8.0.33
-        Step 4: Create shop container instance on network:
+        Step 4: Create shop container instance on network (give 10 seconds to first command to set database):
                    docker run --name shop-container --network shop-net -p 8080:8080 -d cdfre0/myrep:shop
 
     #COMPILER
@@ -132,8 +132,9 @@ User structure that can be passed in POST call:
                 * admin/{id} - deletes game from shop by it's id.
                 * admin/clean - deletes all games from shop that stock number is equal to 0.
 
-            Note: admin can use user calls. 
-                  User can use no user calls.
+            Note: * admin can use user calls. 
+                  * User can use no user calls.
+                  * admin login: admin, password: admin1
 
 ## Comments
     I covered each edge cases, especially when passing values with http calls. 
