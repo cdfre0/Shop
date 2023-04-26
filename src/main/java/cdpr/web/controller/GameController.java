@@ -240,6 +240,14 @@ public class GameController {
 
     }
 
+    /**
+     * Method calls gameService to change Game stored under specific id to
+     * different one
+     *
+     * @param stringId Integer id of Game
+     * @param newGame Game new game to store
+     * @return Confirmation of success or error
+     */
     @PostMapping("admin/changeGame/{stringId}")
     public ResponseEntity<Object> changeGame(@PathVariable String stringId,
             @RequestBody Game newGame) {
@@ -345,7 +353,7 @@ public class GameController {
             list = gameService.showStockLessThan(price);
             if (list.isEmpty()) {
                 return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
-                        HttpStatus.BAD_REQUEST, null);
+                        HttpStatus.OK, null);
             }
             return ResponseHandler.responseBuilder(CALL_REACHED,
                     HttpStatus.OK, list);
@@ -355,7 +363,7 @@ public class GameController {
                 list = gameService.getGameByGenre(genre);
                 if (list.isEmpty()) {
                     return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
-                            HttpStatus.BAD_REQUEST, null);
+                            HttpStatus.OK, null);
                 }
                 return ResponseHandler.responseBuilder(CALL_REACHED,
                         HttpStatus.OK, list);
@@ -363,7 +371,7 @@ public class GameController {
                 list = gameService.getGameByDev(variable);
                 if (list.isEmpty()) {
                     return ResponseHandler.responseBuilder(EMPTY_COLLECTION,
-                            HttpStatus.BAD_REQUEST, null);
+                            HttpStatus.OK, null);
                 }
                 return ResponseHandler.responseBuilder(CALL_REACHED,
                         HttpStatus.OK, list);
