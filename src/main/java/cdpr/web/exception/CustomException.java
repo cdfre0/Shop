@@ -19,8 +19,13 @@ public class CustomException {
      */
     private final HttpStatus httpStatus;
 
-    public CustomException(HttpStatus httpStatus, String message,
-            Throwable throwable) {
+    /**
+     * Constructor Of Exception.
+     *
+     * @param httpStatus HttpStatus http response
+     * @param message String Message from server
+     */
+    public CustomException(HttpStatus httpStatus, String message) {
         this.message = message;
         this.httpStatus = httpStatus;
     }

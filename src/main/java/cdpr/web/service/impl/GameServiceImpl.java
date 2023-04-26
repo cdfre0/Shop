@@ -104,7 +104,6 @@ public class GameServiceImpl implements GameService {
      * Method retrieves details of Game from repository given id.
      *
      * @param id Integer id of Game
-     * @thows
      * @return Game instance or error message
      */
     @Override
@@ -484,10 +483,8 @@ public class GameServiceImpl implements GameService {
 
     /**
      * Method Checks if Game of given id exist in repository.
-     *
-     *
+     * //throws GameNotFoundException if does not exist.
      * @param id Integer id of Game
-     * @throws GameNotFoundException if does not exist.
      */
     private void checkIdExisting(Integer id) {
         if (!repository.existsById(id)) {

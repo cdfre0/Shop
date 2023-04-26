@@ -87,28 +87,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /**
-     * Checks if user exist in repository.
-     *
-     * @param newUser User to check
-     * @return User instance if exist, null otherwise;
-     */
-    @Override
-    public User verifyUser(User newUser) {
-        lock.readLock().lock();
-        try {
-            checkLoginExisting(newUser.getLogin());
-            User user = repository.findById(newUser.getLogin()).get();
-            if (user.getPassword().
-                    equals(newUser.getPassword())) {
-                return user;
-            }
-            return null;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
     //UPDATE
     /**
      * Method promotes User to an admin, if it is not already and exist.
@@ -156,14 +134,34 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Method checks if User of given login exist in repository.
+     * Checks if user exist in repository.
      *
+     * @param newUser User to check
+     * @return User instance if exist, null otherwise;
+     */
+    @Override
+    public User verifyUser(User newUser) {
+        lock.readLock().lock();
+        try {
+            checkLoginExisting(newUser.getLogin());
+            User user = repository.findById(newUser.getLogin()).get();
+            if (user.getPassword().
+                    equals(newUser.getPassword())) {
+                return user;
+            }
+            return null;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Method checks if User of given login exist in repository.
+     * //throws Error if does not exist
      * @param login User login
-     * @throws Error if does not exist
      */
     private void checkLoginExisting(String login) {
         if (!repository.existsById(login)) {
-            //TODO change
             throw new ObjectNotFoundException(
                     "User with such ID does not exist in Repository");
         }

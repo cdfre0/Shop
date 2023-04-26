@@ -11,5 +11,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Jan Michalec
  */
 public interface GameRepository extends JpaRepository<Game, Integer> {
+    /**
+     * Method finds all games of this name.
+     * @param name String name to check
+     * @return List of Games
+     */
     List<Game> findAllByName(String name);
 }

@@ -26,14 +26,23 @@ public class User {
      * Boolean indicating permissions of user. 0 for user, 1 for admin.
      */
     private Boolean permission;
-
+    /**
+     * Plain constructor
+     */
     public User() {
     }
-
+    /**
+     * Constructor with only login for checking.
+     * @param login String login
+     */
     public User(String login) {
         this.login = login;
     }
-
+    /**
+     * Constructor of login class on creation.
+     * @param login String login
+     * @param password String password 
+     */
     public User(String login, String password) {
         this.login = login;
         this.password = password;

@@ -7,21 +7,25 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
  * Class to handle call of exception when Object is not found in repository.
- * Returns Not Found Http Status with CustomException.
  *
  * @author Jan Michalec
  */
 @ControllerAdvice
 public class CustomExceptionHandler {
 
+    /**
+     * MEthod called to handle Exception thrown.
+     *
+     * @param objectNotFoundException Exception threw
+     * @return ResponseEntity with Exception and Not Found HttpStatus
+     */
     @ExceptionHandler(value = {ObjectNotFoundException.class})
     public ResponseEntity<Object> hangleGameNotFoundExpection(
             ObjectNotFoundException objectNotFoundException) {
 
         CustomException customException = new CustomException(
                 HttpStatus.NOT_FOUND,
-                objectNotFoundException.getMessage(),
-                objectNotFoundException.getCause());
+                objectNotFoundException.getMessage());
 
         return new ResponseEntity<>(customException, HttpStatus.NOT_FOUND);
     }

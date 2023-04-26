@@ -16,14 +16,50 @@ import java.util.List;
 public class Game {
 
     /**
-     * Genre enum.
+     * Types of Genres; 10 to choose from.
      */
     public enum Genre {
+
         /**
-         * Types of Genres; 10 to choose from.
+         * Shooter type.
          */
-        SHOOTER, RPG, PLATFORM, STRATEGY, OPENWORLD, SIMULATION,
-        RTS, PUZZLE, ACTION, HORROR;
+        SHOOTER,
+        /**
+         * Role Playing game type.
+         */
+        RPG,
+        /**
+         * Platform type.
+         */
+        PLATFORM,
+        /**
+         * Strategy type.
+         */
+        STRATEGY,
+        /**
+         * Openworld type.
+         */
+        OPENWORLD,
+        /**
+         * Simulation type.
+         */
+        SIMULATION,
+        /**
+         * Real time strategy type.
+         */
+        RTS,
+        /**
+         * Puzzle type.
+         */
+        PUZZLE,
+        /**
+         * Action type.
+         */
+        ACTION,
+        /**
+         * Horror type.
+         */
+        HORROR;
     }
 
     /**
@@ -54,11 +90,19 @@ public class Game {
     private int quantity;
 
     /**
-     * 3 Constructors. One plain, 1 with and without quantity.
+     * Plain constructor.
      */
     public Game() {
     }
 
+    /**
+     * Constructor without quantity.
+     *
+     * @param name String name of game
+     * @param developer String developer name
+     * @param genres List of Genres of game
+     * @param price double price of game
+     */
     public Game(String name, String developer, List<Genre> genres, double price) {
         this.name = name;
         this.developer = developer;
@@ -67,6 +111,15 @@ public class Game {
         this.quantity = 0;
     }
 
+    /**
+     * Constructor with quantity.
+     *
+     * @param name String name of game
+     * @param developer String developer name
+     * @param genres List of Genres of game
+     * @param price double price of game
+     * @param quantity int number of stocks of game
+     */
     public Game(String name, String developer, List<Genre> genres, double price,
             int quantity) {
         this.name = name;
@@ -131,9 +184,9 @@ public class Game {
     }
 
     /**
-     * Gets Genres type
+     * Gets Genres type.
      *
-     * @return List<Genres> Genres
+     * @return List of genres Genres
      */
     public List<Genre> getGenres() {
         return genres;
@@ -142,7 +195,7 @@ public class Game {
     /**
      * Sets new Genres for game.
      *
-     * @param genres List<Genre> Genre new Genre
+     * @param genres List of Genres
      */
     public void setGenres(List<Genre> genres) {
         this.genres = genres;

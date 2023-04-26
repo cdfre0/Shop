@@ -13,6 +13,14 @@ import org.springframework.http.ResponseEntity;
  */
 public class ResponseHandler {
 
+    /**
+     * Method handles creation of response.
+     *
+     * @param message String message to output
+     * @param httpStatus HttpStatus status of http response
+     * @param result Object data fetched
+     * @return ResponseEntity with response and http status.
+     */
     public static ResponseEntity<Object> responseBuilder(
             String message, HttpStatus httpStatus, Object result) {
         Map<String, Object> response = new HashMap<>();
