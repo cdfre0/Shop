@@ -96,13 +96,17 @@ Step 4: Communicate with server Using those calls:
             ##POST
                 * admin - creates instance of game in stock.
                     Game is passed in body request of call. If quantity is not passed in call, it will be set to 0. 
+                * admin/changeGame/{id} = changes data of game under given id.
+                    Game is passed in body request of call. If quantity is not passed in call, it will be set to 0. 
             ##GET
                 * admin/getUsers - gets logins and permissions of all users.
             ##PUT
                 * admin/promote?login={name} - promotes passed login of user to admin.
                 * admin/delete?login={name} = deletes passed login of user from database.
                 * admin?id={id}&quantity={q} - supplies stocks of game of this id by "q".
-                * admin/sale?id={id}&factor={f} - Mutiplies price of game of this id by "f"; f should be double.
+                * admin/change?id={id}&name=[name}&developer={developer}&factor={f} - change data of given game
+                                    - Call changes provided data. Id needs to be always provided
+                                    - Factor mutiplies price of game of this id by "f"; f should be double.
                 * admin/addGenre?id={id}&genre={genre} - Adds new Genre to game's data.
                 * admin/deleteGenre?id={id}&genre={genre} - Deletes Genre type from game's data.
             ##DELETE
