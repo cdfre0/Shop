@@ -378,7 +378,7 @@ public class GameController {
      * @param stringId String should contain number
      * @return Confirmation of success or error
      */
-    @GetMapping("avaliable/{stringId}")
+    @GetMapping("available/{stringId}")
     public ResponseEntity<Object> isAvaliable(@PathVariable String stringId
     ) {
         try {

@@ -29,7 +29,7 @@ Game Structure in JSON
         "ACTION"
     ]
 }
-User Sructire in JSON
+User Structure in JSON
 {   "login": "login",
     "password": "password",
     "permission": true  }
@@ -56,6 +56,10 @@ User structure that can be passed in POST call:
 {  "login": "login",
     "password": "password123"  }
 
+## Prerequisite
+    Java 17
+    MySql
+    
 ## How to run
 How to run OnlineShop
 
@@ -81,7 +85,7 @@ Step 4: Communicate with server Using those calls:
             ##GET
                 * byId/{id} - gets data of game by it's id.
                 * {name} - gets datas of games of certain name.
-                * avalaible/{id} - checks if game of this id has any copy left to buy
+                * available/{id} - checks if game of this id has any copy left to buy
                 * all - gets data of all games.
                 * all/{variable} - gets data of all games:
                                     - if variable is a number, gets all games that cost is lower that number
@@ -91,7 +95,7 @@ Step 4: Communicate with server Using those calls:
             ##POST
                 * logout - logs out from profile.
             ##PUT
-                * {id} - buys game of this id if avaliable in stocks
+                * {id} - buys game of this id if available in stocks
         - admin
             ##POST
                 * admin - creates instance of game in stock.
@@ -106,7 +110,7 @@ Step 4: Communicate with server Using those calls:
                 * admin?id={id}&quantity={q} - supplies stocks of game of this id by "q".
                 * admin/change?id={id}&name=[name}&developer={developer}&factor={f} - change data of given game
                                     - Call changes provided data. Id needs to be always provided
-                                    - Factor mutiplies price of game of this id by "f"; f should be double.
+                                    - Factor multiples price of game of this id by "f"; f should be double.
                 * admin/addGenre?id={id}&genre={genre} - Adds new Genre to game's data.
                 * admin/deleteGenre?id={id}&genre={genre} - Deletes Genre type from game's data.
             ##DELETE
@@ -116,5 +120,13 @@ Step 4: Communicate with server Using those calls:
             Note: admin can use user calls. 
                   User can use no user calls.
 
+## Comments
+    I covered each edge cases, especially when passing values with http calls. 
+    The return message will communicate if update/get/post/delete call was succussed or not. Special case is with finding primary key of data, if it is not found, exception message is returned.
+
+
+
+
 ## Contributor
 * [Jan Michalec](https://github.com/cdfre0)
+    - if anyone has problem with running, or have questions, I'm always available on WhatsApp +48798354298
