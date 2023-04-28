@@ -138,11 +138,21 @@ User structure that can be passed in POST call:
 
 ## Comments
     I covered each edge cases, especially when passing values with http calls. 
-    The return message will communicate if update/get/post/delete call was succussed or not. Special case is with finding primary key of data, if it is not found, exception message is returned.
+    The return message will communicate if update/get/post/delete call was succussed or not. Special 
+    case is with finding primary key of data, if it is not found, exception message is returned.
 
-##Technologies
+#### Late comments
+
+    Now as I think of it, that I deleted locks the other day thinking JPArep will take  care of 
+    multithreading, is not the case when I for example in buyOneGame decreaseQuantity and then save. 
+    I wound need to do it inside save call in repository.        
+    Everything goes to all methods I update some values. 
+
+
+#### Technologies
     Java, REST, JPA, MySQL, Docker, Spring, JSON, YAML, XML
 ## Contributor
 * [Jan Michalec Git](https://github.com/cdfre0)
 * [Jan Michalec Docker](https://hub.docker.com/u/cdfre0)
     - if anyone has problem with running, or have questions, I'm always available on WhatsApp +48798354298
+
